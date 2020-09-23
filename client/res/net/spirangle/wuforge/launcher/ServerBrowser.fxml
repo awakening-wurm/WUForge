@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import java.net.URL?>
+<AnchorPane id="AnchorPane" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="725.0" prefWidth="1070.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <StackPane prefHeight="413.0" prefWidth="807.0" />
+      <StackPane>
+         <children>
+            <Pane id="layout" prefHeight="720.0" prefWidth="1065.0">
+               <children>
+                  <ImageView id="layout_top" fitHeight="254.0" fitWidth="1079.0" layoutY="126.0" pickOnBounds="true" preserveRatio="true" styleClass="layout_top">
+                     <image>
+                        <Image url="@images/layout_top.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView id="layout_bottom" fitHeight="274.0" fitWidth="1079.0" layoutY="377.0" pickOnBounds="true" preserveRatio="true" styleClass="layout_bottom">
+                     <image>
+                        <Image url="@images/layout_bottom.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView id="layout_footer" fitHeight="104.0" fitWidth="1079.0" layoutY="637.0" pickOnBounds="true" preserveRatio="true" styleClass="layout_footer">
+                     <image>
+                        <Image url="@images/layout_footer.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView id="header" fitHeight="224.0" fitWidth="1079.0" pickOnBounds="true" preserveRatio="true" styleClass="header">
+                     <image>
+                        <Image url="@images/header.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <Pane id="top">
+                     <children>
+                        <Pane id="dragArea" layoutX="57.0" layoutY="63.0" onMouseDragged="#dragLauncher" onMousePressed="#prepareDragLauncher" prefHeight="74.0" prefWidth="968.0">
+                           <children>
+                              <Label id="wurmpedia" layoutX="69.0" layoutY="24.0" onMouseClicked="#launchWurmpedia" prefHeight="27.0" prefWidth="104.0" styleClass="nav" text="W U R M P E D I A" />
+                              <Label id="forums" layoutX="225.0" layoutY="28.0" onMouseClicked="#launchForums" styleClass="nav" text="F O R U M S" />
+                              <Label id="credits" layoutX="750.0" layoutY="24.0" onMouseClicked="#launchCredits" prefHeight="27.0" prefWidth="104.0" styleClass="nav" stylesheets="@Launcher.css" text="C R E D I T S" />
+                           </children>
+                        </Pane>
+                        <ImageView id="exit" fitHeight="26.0" fitWidth="24.0" layoutX="964.0" layoutY="88.0" onMouseClicked="#exitLauncher" pickOnBounds="true" preserveRatio="true" styleClass="exit">
+                           <image>
+                              <Image url="@images/close.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView id="minimize" fitHeight="24.0" fitWidth="26.0" layoutX="933.0" layoutY="88.0" onMouseClicked="#minimizeLauncher" pickOnBounds="true" preserveRatio="true" styleClass="min">
+                           <image>
+                              <Image url="@images/min.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+
+                  <ImageView fitHeight="88.0" fitWidth="288.0" layoutX="390.0" layoutY="57.0" onMouseDragged="#dragLauncher" onMousePressed="#prepareDragLauncher" scaleX="0.9" scaleY="0.9">
+                     <image>
+                        <Image url="@images/wurmbutton.png" />
+                     </image>
+                  </ImageView>
+
+                  <Label fx:id="refreshingStatusLabel" alignment="CENTER" layoutX="147.0" layoutY="164.0" prefHeight="16.0" prefWidth="608.0" styleClass="generalTextSmall" text="Refresh" textFill="WHITE">
+                     <font>
+                        <Font name="PalatinoLTStd-Roman" size="16.0" />
+                     </font>
+                  </Label>
+                  <Pane layoutX="145.0" layoutY="184.0" prefWidth="615.0" prefHeight="380.0">
+                     <children>
+                        <TabPane fx:id="ServerTabPane" prefWidth="615.0" prefHeight="375.0" tabClosingPolicy="UNAVAILABLE">
+                           <tabs>
+                              <Tab fx:id="internetTab" text="Internet">
+                                 <content>
+                                    <TableView fx:id="tableViewInternet" opacity="0.54" prefWidth="612.0" prefHeight="339.0">
+                                       <columns>
+                                          <TableColumn id="PasswordCell" fx:id="PasswordCellInternet" prefWidth="32.0" styleClass="PasswordCell" />
+                                          <TableColumn id="ServerNameColumn" fx:id="ServerNameColumnInternet" editable="false" prefWidth="323.0" resizable="false" text="Server" />
+                                          <TableColumn fx:id="ServerVersionColumnInternet" prefWidth="100.0" text="Version" />
+                                          <TableColumn fx:id="ServerPlayersColumnInternet" editable="false" minWidth="6.0" prefWidth="93.0" resizable="false" text="Players" />
+                                          <TableColumn fx:id="pingColumnInternet" editable="false" prefWidth="62.0" resizable="false" text="Ping" />
+                                       </columns>
+                                    </TableView>
+                                 </content>
+                              </Tab>
+                              <Tab fx:id="LANTab" text="LAN">
+                                 <content>
+                                    <TableView fx:id="tableViewLAN" opacity="0.54">
+                                       <columns>
+                                          <TableColumn id="PasswordCell" fx:id="PasswordCellLan" prefWidth="32.0" styleClass="PasswordCell" />
+                                          <TableColumn id="ServerNameColumn" fx:id="ServerNameColumnLAN" editable="false" prefWidth="323.0" resizable="false" text="Server" />
+                                          <TableColumn fx:id="ServerVersionColumnLAN" prefWidth="100.0" text="Version" />
+                                          <TableColumn fx:id="ServerPlayersColumnLAN" editable="false" prefWidth="93.0" resizable="false" text="Players" />
+                                          <TableColumn fx:id="pingColumnLAN" editable="false" prefWidth="62.0" resizable="false" text="Ping" />
+                                       </columns>
+                                    </TableView>
+                                 </content>
+                              </Tab>
+                              <Tab fx:id="FavoriteTab" text="Favorite">
+                                 <content>
+                                    <TableView fx:id="tableViewFavorite" opacity="0.54">
+                                       <columns>
+                                          <TableColumn id="PasswordCell" fx:id="PasswordCellFavorite" prefWidth="32.0" styleClass="PasswordCell" />
+                                          <TableColumn id="ServerNameColumn" fx:id="ServerNameColumnFavorite" editable="false" prefWidth="323.0" resizable="false" text="Server" />
+                                          <TableColumn fx:id="ServerVersionColumnFavorite" prefWidth="100.0" text="Version" />
+                                          <TableColumn fx:id="ServerPlayersColumnFavorite" editable="false" prefWidth="93.0" resizable="false" text="Players" />
+                                          <TableColumn fx:id="pingColumnFavorite" editable="false" prefWidth="62.0" resizable="false" text="Ping" />
+                                       </columns>
+                                    </TableView>
+                                 </content>
+                              </Tab>
+                              <Tab fx:id="FriendsTab" text="Friends">
+                                 <content>
+                                    <TableView fx:id="tableViewFriends" opacity="0.54">
+                                       <columns>
+                                          <TableColumn id="PasswordCell" fx:id="PasswordCellFriends" prefWidth="32.0" styleClass="PasswordCell" />
+                                          <TableColumn id="ServerNameColumn" fx:id="ServerNameColumnFriends" editable="false" prefWidth="323.0" resizable="false" text="Server" />
+                                          <TableColumn fx:id="ServerVersionColumnFriends" prefWidth="100.0" text="Version" />
+                                          <TableColumn fx:id="ServerPlayersColumnFriends" editable="false" prefWidth="93.0" resizable="false" text="Players" />
+                                          <TableColumn fx:id="pingColumnFriends" editable="false" prefWidth="62.0" resizable="false" text="Ping" />
+                                       </columns>
+                                    </TableView>
+                                 </content>
+                              </Tab>
+                              <Tab fx:id="HistoryTab" text="History">
+                                 <content>
+                                    <TableView fx:id="tableViewHistory" opacity="0.54">
+                                       <columns>
+                                          <TableColumn id="PasswordCell" fx:id="PasswordCellHistory" prefWidth="32.0" styleClass="PasswordCell" />
+                                          <TableColumn id="ServerNameColumn" fx:id="ServerNameColumnHistory" editable="false" prefWidth="323.0" resizable="false" text="Server" />
+                                          <TableColumn fx:id="ServerVersionColumnHistory" prefWidth="100.0" text="Version" />
+                                          <TableColumn fx:id="ServerPlayersColumnHistory" editable="false" prefWidth="93.0" resizable="false" text="Players" />
+                                          <TableColumn fx:id="pingColumnHistory" editable="false" prefWidth="62.0" resizable="false" text="Ping" />
+                                       </columns>
+                                    </TableView>
+                                 </content>
+                              </Tab>
+                           </tabs>
+                        </TabPane>
+                     </children>
+                  </Pane>
+
+                  <Pane fx:id="serversFilters" layoutX="763.0" layoutY="214.0" prefHeight="184.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="5.0" layoutY="-4.0" prefHeight="25.0" prefWidth="183.0" styleClass="generalTextSmall" text="Server Filter" textFill="WHITE">
+                           <font>
+                              <Font name="PalatinoLTStd-Roman" size="18.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="NameFilter" layoutX="5.0" layoutY="22.0" onKeyReleased="#FilterAllServers" prefHeight="25.0" prefWidth="140.0" />
+                        <Label layoutX="150.0" layoutY="22.0" prefHeight="25.0" prefWidth="46.0" styleClass="generalTextSmall" text="Name" />
+                        <ComboBox fx:id="PingFilterComboBox" layoutX="5.0" layoutY="53.0" onAction="#FilterAllServers" prefHeight="25.0" prefWidth="140.0" />
+                        <Label layoutX="150.0" layoutY="53.0" prefHeight="25.0" prefWidth="39.0" styleClass="generalTextSmall" text="Ping" />
+                        <CheckBox fx:id="ServerFullCheckBox" layoutX="5.0" layoutY="84.0" mnemonicParsing="false" onAction="#FilterAllServers" prefHeight="17.0" prefWidth="153.0" styleClass="generalTextTiny" text="Hide full" />
+                        <CheckBox fx:id="ServerEmptyCheckBox" layoutX="5.0" layoutY="104.0" mnemonicParsing="false" onAction="#FilterAllServers" prefHeight="17.0" prefWidth="157.0" styleClass="generalTextTiny" text="Hide empty" />
+                        <CheckBox fx:id="ServerPasswordCheckBox" layoutX="5.0" layoutY="124.0" mnemonicParsing="false" onAction="#FilterAllServers" prefHeight="17.0" prefWidth="190.0" styleClass="generalTextTiny" text="Hide password protected" />
+                        <CheckBox fx:id="ServerVersionCheckBox" layoutX="5.0" layoutY="145.0" mnemonicParsing="false" onAction="#FilterAllServers" styleClass="generalTextTiny" text="Hide incorrect version" />
+                     </children>
+                  </Pane>
+
+                  <Pane id="userData" layoutX="754.0" layoutY="389.0" prefWidth="209.0" prefHeight="317.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="0.0" prefHeight="25.0" prefWidth="183.0" styleClass="generalTextSmall" text="Settings Profile" textFill="WHITE">
+                           <font>
+                              <Font name="PalatinoLTStd-Roman" size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="userConfigBox" layoutX="13.0" layoutY="25.0" onAction="#changeConfig" prefHeight="25.0" prefWidth="154.0" />
+                        <ImageView fitHeight="25.0" fitWidth="25.0" layoutX="172.0" layoutY="25.0" onMouseClicked="#launchSettings" pickOnBounds="true" preserveRatio="true" styleClass="settings">
+                           <image>
+                              <Image url="@images/gear.png" />
+                           </image>
+                        </ImageView>
+                        <Label layoutX="14.0" layoutY="59.0" prefHeight="25.0" prefWidth="183.0" styleClass="generalTextSmall" text="Mods Profile" textFill="WHITE">
+                           <font>
+                              <Font name="PalatinoLTStd-Roman" size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="modsConfigBox" layoutX="13.0" layoutY="84.0" onAction="#changeModsConfig" prefHeight="25.0" prefWidth="154.0" />
+                        <ImageView fitHeight="25.0" fitWidth="25.0" layoutX="172.0" layoutY="84.0" onMouseClicked="#launchModsSettings" pickOnBounds="true" preserveRatio="true" styleClass="settings">
+                           <image>
+                              <Image url="@images/gear.png" />
+                           </image>
+                        </ImageView>
+                        <Label layoutX="14.0" layoutY="117.0" prefHeight="25.0" prefWidth="183.0" styleClass="generalTextSmall" text="Name" textFill="WHITE">
+                           <font>
+                              <Font name="PalatinoLTStd-Roman" size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="userNameBox" editable="true" layoutX="13.0" layoutY="143.0" onAction="#changeProfile" prefHeight="25.0" prefWidth="183.0" />
+                        <Button fx:id="ConnectButton" mnemonicParsing="false" layoutX="0.0" layoutY="174.0" onMouseClicked="#Connect" prefHeight="43.0" prefWidth="190.0" styleClass="RefreshButton" text="Connect" textFill="WHITE" translateX="10.0">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="ConnectToOfflineServer" mnemonicParsing="false" layoutX="0.0" layoutY="221.0" onMouseClicked="#ConnectToOfflineServer" prefHeight="43.0" prefWidth="190.0" styleClass="RefreshButton" text="Connect by IP" textFill="WHITE" translateX="10.0">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </Pane>
+
+                  <HBox layoutX="145.0" layoutY="563.0" prefHeight="46.0" prefWidth="582.0">
+                     <children>
+                        <Button fx:id="RefreshButton" mnemonicParsing="false" onMouseClicked="#Refresh" prefHeight="43.0" prefWidth="190.0" styleClass="RefreshButton" text="Refresh" textFill="WHITE">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="CancelRefreshButton" mnemonicParsing="false" onMouseClicked="#CancelRefresh" prefHeight="43.0" prefWidth="190.0" styleClass="RefreshButton" text="Cancel Refresh" textFill="WHITE" translateX="5.0">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="145.0" layoutY="610.0" prefHeight="46.0" prefWidth="582.0">
+                     <children>
+                        <Button layoutY="0.0" mnemonicParsing="false" onMouseClicked="#ManageServer" prefHeight="43.0" prefWidth="190.0" styleClass="RefreshButton" text="Manage Local Server">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                        </Button>
+                        <CheckBox fx:id="IsDedicatedServerCheckBox" layoutX="200.0" layoutY="6.0" mnemonicParsing="false" prefHeight="19.0" prefWidth="194.0" styleClass="generalTextTiny" text="Use dedicated server" textFill="WHITE" translateX="5.0" translateY="10.0" />
+                        <!--Line endX="80.0" layoutX="111.0" startX="-100.0" stroke="#a19898" strokeWidth="2.0" />
+                        <Line endX="80.0" layoutX="111.0" layoutY="91.0" startX="-100.0" stroke="#a19898" strokeWidth="2.0" /-->
+                     </children>
+                  </HBox>
+                  <Button fx:id="WurmOnlineBanner" layoutX="558.0" layoutY="573.0" mnemonicParsing="false" onMouseClicked="#OpenWurmOnlineWebsite" prefHeight="79.0" prefWidth="190.0" styleClass="WurmOnlineBanner" />
+                  <Text fx:id="ClientVersionText" fill="WHITE" layoutX="154.0" layoutY="680.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="generalTextTiny" text="Version" wrappingWidth="350.0">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="poweredByWUForge" fill="WHITE" layoutX="585.0" layoutY="678.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="generalTextTiny" text="Powered by: Wurm Unlimited Forge" wrappingWidth="350.0">
+                     <font>
+                        <Font size="11.0" />
+                     </font>
+                  </Text>
+               </children>
+               <stylesheets>
+                  <URL value="@Launcher.css" />
+                  <URL value="@ServerBrowserStyleSheet.css" />
+               </stylesheets>
+            </Pane>
+         </children>
+      </StackPane>
+   </children>
+</AnchorPane>

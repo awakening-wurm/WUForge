@@ -1,0 +1,143 @@
+.scroll-pane > .viewport {
+	-fx-background-color: transparent;
+}
+
+.scroll-pane {
+	-fx-background-color: transparent;
+}
+
+.progress-bar {
+	-fx-background-color: #000000;
+}
+
+.progress-bar > .bar {
+	-fx-accent: #0c7db6;
+	-fx-background-color: linear-gradient(
+        from 0px 1em to 1em 0px,
+        repeat,
+        -fx-accent 0%,
+        -fx-accent 49%,
+        derive(-fx-accent, 30%) 50%,
+        derive(-fx-accent, 30%) 99%
+    );
+}
+
+.progress-bar > .track {
+      -fx-background-color: rgba(0, 0, 0, 0.0);
+}
+
+.nav {
+	-fx-text-fill: #ffd5b2;
+	-fx-font-family: PalatinoLTStd-Roman;
+	-fx-font-size: 14;
+}
+
+.nav:hover {
+	-fx-text-fill: white;
+	-fx-font-family: PalatinoLTStd-Roman;
+	-fx-font-size: 14;
+}
+
+.wurmLogo {
+	-fx-image: url(images/images/wurmbutton.png);
+}
+
+.play_button {
+	-fx-background-image: url(images/images/refresh.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+	-fx-text-fill: #ffd5b2;
+	-fx-font-size: 12pt;
+	-fx-font-family: PalatinoLTStd-Roman;
+}
+
+.play_button:hover {
+	-fx-background-image: url(images/refresh_hover.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.play_button:pressed
+{
+	-fx-background-image: url(images/refresh_pressed.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.settings {
+	-fx-image: url(images/gear.png);
+}
+
+.settings:hover {
+	-fx-image: url(images/gear_hover.png);
+}
+
+.generalText {
+	-fx-text-fill: #ffd5b2;
+	-fx-font-size: 12pt;
+	-fx-font-family: PalatinoLTStd-Roman;
+}
+
+.generalTextSmall {
+	-fx-text-fill: #ffd5b2;
+	-fx-font-size: 10pt;
+	-fx-font-family: Arial;
+}
+
+.menubutton {
+	-fx-background-color: rgba(0, 0, 0, 0.0);
+}
+
+.menubutton .arrow {
+	-fx-background-color: rgba(0, 0, 0, 0.0);
+}
+
+
+.exit {
+	-fx-image: url(images/close.png);
+}
+
+.exit:hover {
+	-fx-image: url(images/close_hover.png);
+}
+
+.exit:pressed {
+	-fx-image: url(images/close_p.png);
+}
+
+
+.min {
+	-fx-image: url(images/min.png);
+}
+
+.min:hover {
+	-fx-image: url(images/min_hover.png);
+}
+
+.min:pressed {
+	-fx-image: url(images/min_p.png);
+}
+
+.combo-box-popup .list-cell:filled:hover {
+	-fx-background-color: #0f9ee6;
+}
+
+.combo-box-popup .list-cell:selected {
+	-fx-background-color: #0c7db6;
+}
+
+.pagesNav .pagination-control .bullet-button {
+	-fx-background-color: transparent, #ffd5b2, #0c7db6, white, white;
+}
+
+.pagesNav .pagination-control .bullet-button:selected {
+	-fx-background-color: transparent, #ffd5b2, #0c7db6, white, rgba(12, 125, 182, 0.7);
+}
+
+.pagesNav .pagination-control .left-arrow-button, .right-arrow-button{
+	-fx-scale-x: 0.75;
+	-fx-scale-y: 0.75;
+	-fx-scale-z: 0.75;
+}
+
+

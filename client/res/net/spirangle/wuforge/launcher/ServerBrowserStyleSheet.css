@@ -1,0 +1,133 @@
+
+.RefreshButton {
+	-fx-background-image: url(images/refresh.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+	-fx-text-fill: #ffd5b2;
+	-fx-font-size: 12pt;
+	-fx-font-family: PalatinoLTStd-Roman;
+}
+
+.RefreshButton:hover {
+	-fx-background-image: url(images/refresh_hover.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.RefreshButton:pressed {
+	-fx-background-image: url(images/refresh_pressed.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.WurmOnlineBanner {
+	-fx-background-image: url(images/mmo_base.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+	-fx-text-fill: #ffd5b2;
+	-fx-font-size: 12pt;
+	-fx-font-family: PalatinoLTStd-Roman;
+}
+
+.WurmOnlineBanner:hover {
+	-fx-background-image: url(images/mmo_hover.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.WurmOnlineBanner:pressed {
+	-fx-background-image: url(images/mmo_pressed.png);
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.keybindsettings {
+	-fx-background-image: url(images/key_bind_Icon.png);
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+
+.table-view {
+    -fx-base: #D2BA94;
+    -fx-control-inner-background: #D2BA94;
+    -fx-background-color: #635847;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-padding: 5;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-size: 32;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0 10 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 12pt;
+    -fx-font-family: PalatinoLTStd-Roman;
+    -fx-text-fill: black;
+    -fx-alignment: center-left;
+}
+
+.table-view:focused .table-row-cell:filled:focused:selected {
+    -fx-background-color: -fx-focus-color;
+}
+
+.table-row-cell:selected .text {
+	-fx-fill: rgb(255, 255, 255, 1) ;
+	-fx-font-weight: bold;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab {
+	-fx-background-color: rgba(210, 186, 148, 0.54);
+	-fx-focus-color: transparent;
+}
+
+.tab .tab-label {
+ 	-fx-font-size: 12pt;
+    -fx-font-family: PalatinoLTStd-Roman;
+    -fx-text-fill: black;
+    -fx-alignment: center-left;
+    -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: white;
+}
+
+.tab-pane .tab:selected {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.PasswordCell.column-header {
+	-fx-background-image: url(images/padlock_icon_16.png);
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+
+.serverPasswordField {
+	-fx-background-image: url(images/server_password_enrty.png);
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+
+#serversFilters Label {
+    -fx-font-family: PalatinoLTStd-Roman;
+    -fx-text-fill: #FFCC99;
+}
+
+#serversFilters CheckBox {
+    -fx-font-family: PalatinoLTStd-Roman;
+    -fx-text-fill: #FFCC99;
+}

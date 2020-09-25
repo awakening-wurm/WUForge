@@ -1,6 +1,5 @@
 package org.gotti.wurmunlimited.clientlauncher;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -17,8 +16,8 @@ public class PatchedLauncher {
             };
             try(URLClassLoader urlClassLoader = new URLClassLoader(urls)) {
                 Class<?> launcher = urlClassLoader.loadClass("org.gotti.wurmunlimited.clientlauncher.ClientLauncher");
-                Method method = launcher.getDeclaredMethod("main",new Class[]{ String[].class });
-                method.invoke(launcher,new Object[]{ args });
+                Method method = launcher.getDeclaredMethod("main",new Class[]{String[].class});
+                method.invoke(launcher,new Object[]{args});
             }
         } catch(Exception e) {
             e.printStackTrace();

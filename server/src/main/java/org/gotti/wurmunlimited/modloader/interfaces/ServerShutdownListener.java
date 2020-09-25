@@ -5,9 +5,9 @@ package org.gotti.wurmunlimited.modloader.interfaces;
  */
 public interface ServerShutdownListener {
 
-	/**
-	 * Called before the server shutdown is initiated
-	 */
-	void onServerShutdown();
+    /**
+     * Called before the server shutdown is initiated
+     */
+    void onServerShutdown();
 
 }

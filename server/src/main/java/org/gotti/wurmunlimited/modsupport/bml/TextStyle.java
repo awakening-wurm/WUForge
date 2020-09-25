@@ -4,12 +4,12 @@ import java.util.Locale;
 
 public enum TextStyle {
 
-	BOLD,
-	ITALIC,
-	BOLDITALIC,
-	;
+    BOLD,
+    ITALIC,
+    BOLDITALIC,
+    ;
 
-	public String getType() {
-		return name().toLowerCase(Locale.ROOT);
-	}
+    public String getType() {
+        return name().toLowerCase(Locale.ROOT);
+    }
 }

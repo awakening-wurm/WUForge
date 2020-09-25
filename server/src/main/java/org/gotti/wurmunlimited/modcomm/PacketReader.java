@@ -17,17 +17,17 @@ public class PacketReader extends DataInputStream {
         }
 
         public int read() throws IOException {
-            if (buf.hasRemaining()) {
-                return buf.get() & 0xFF;
+            if(buf.hasRemaining()) {
+                return buf.get()&0xFF;
             } else {
                 return -1;
             }
         }
 
-        public int read(byte[] bytes, int off, int len) throws IOException {
-            if (buf.hasRemaining()) {
-                len = Math.min(len, buf.remaining());
-                buf.get(bytes, off, len);
+        public int read(byte[] bytes,int off,int len) throws IOException {
+            if(buf.hasRemaining()) {
+                len = Math.min(len,buf.remaining());
+                buf.get(bytes,off,len);
                 return len;
             } else {
                 return -1;

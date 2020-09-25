@@ -12,10 +12,10 @@ public class PacketWriter extends DataOutputStream {
 
     public PacketWriter() {
         super(new ByteArrayOutputStream());
-        buffer = (ByteArrayOutputStream) out;
+        buffer = (ByteArrayOutputStream)out;
     }
 
     public ByteBuffer getBytes() {
-        return ByteBuffer.wrap(buffer.toByteArray(), 0, buffer.size());
+        return ByteBuffer.wrap(buffer.toByteArray(),0,buffer.size());
     }
 }

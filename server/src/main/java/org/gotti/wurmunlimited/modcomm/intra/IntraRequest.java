@@ -7,23 +7,25 @@ import java.nio.ByteBuffer;
  */
 public interface IntraRequest {
 
-	/**
-	 * @return Unique message name
-	 */
-	String getName();
+    /**
+     * @return Unique message name
+     */
+    String getName();
 
-	/**
-	 * Handle the reply
-	 * @param recvBuffer Receive buffer
-	 * @return true if the request is done
-	 */
-	boolean handleReply(ByteBuffer recvBuffer);
+    /**
+     * Handle the reply
+     *
+     * @param recvBuffer Receive buffer
+     * @return true if the request is done
+     */
+    boolean handleReply(ByteBuffer recvBuffer);
 
-	/**
-	 * Handle a timeout
-	 * @return true to finish the request
-	 */
-	default boolean handleTimeout() {
-		return true;
-	}
+    /**
+     * Handle a timeout
+     *
+     * @return true to finish the request
+     */
+    default boolean handleTimeout() {
+        return true;
+    }
 }

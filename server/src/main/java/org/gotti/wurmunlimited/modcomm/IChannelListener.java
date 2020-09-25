@@ -14,7 +14,7 @@ public interface IChannelListener {
      * @param player  player object
      * @param message message contents
      */
-    default void handleMessage(Player player, ByteBuffer message) {
+    default void handleMessage(Player player,ByteBuffer message) {
     }
 
     /**

@@ -42,7 +42,7 @@ public class DelegatedLauncher {
             "org.gotti.wurmunlimited.clientlauncher.ClientLogger.initLogger();"+
             "consoleOutputStream.addCopy(org.gotti.wurmunlimited.clientlauncher.ClientLogger.createConsoleListener());\n";
         ClassPool classPool = HookManager.getInstance().getClassPool();
-        String descriptor = Descriptor.ofMethod(classPool.get("void"),new CtClass[]{ classPool.get("java.lang.String[]") });
+        String descriptor = Descriptor.ofMethod(classPool.get("void"),new CtClass[]{classPool.get("java.lang.String[]")});
         CtMethod ctMain = classPool.get(WURM_MAIN_CLASS).getMethod("main",descriptor);
         ctMain.insertBefore(code);
     }

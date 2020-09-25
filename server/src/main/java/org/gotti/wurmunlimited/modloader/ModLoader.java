@@ -7,24 +7,26 @@ import org.gotti.wurmunlimited.modsupport.actions.ActionEntryBuilder;
 import org.gotti.wurmunlimited.modsupport.items.ModItems;
 
 public class ModLoader extends ModLoaderShared<WurmServerMod> {
-	
-	public ModLoader() {
-		super(WurmServerMod.class);
-	}
-	
-	@Override
-	protected void modcommInit() {
-		ModComm.init();
-		ModIntraServer.init();
-	}
-	
-	@Override
-	protected void preInit() {
-	}
-	
-	@Override
-	protected void init() {
-		ActionEntryBuilder.init();
-		ModItems.init();
-	};
+
+    public ModLoader() {
+        super(WurmServerMod.class);
+    }
+
+    @Override
+    protected void modcommInit() {
+        ModComm.init();
+        ModIntraServer.init();
+    }
+
+    @Override
+    protected void preInit() {
+    }
+
+    @Override
+    protected void init() {
+        ActionEntryBuilder.init();
+        ModItems.init();
+    }
+
+    ;
 }

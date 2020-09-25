@@ -13,7 +13,7 @@ public class Channel {
     final IChannelListener listener;
     final String name;
 
-    Channel(int id, String name, IChannelListener listener) {
+    Channel(int id,String name,IChannelListener listener) {
         this.id = id;
         this.name = name;
         this.listener = listener;
@@ -25,9 +25,9 @@ public class Channel {
      * @param player  player object
      * @param message contents of the message
      */
-    public void sendMessage(Player player, ByteBuffer message) {
-        if (!isActiveForPlayer(player))
-            throw new RuntimeException(String.format("Channel %s is not active for player %s", name, player.getName()));
+    public void sendMessage(Player player,ByteBuffer message) {
+        if(!isActiveForPlayer(player))
+            throw new RuntimeException(String.format("Channel %s is not active for player %s",name,player.getName()));
         try {
             SocketConnection conn = player.getCommunicator().getConnection();
             ByteBuffer buff = conn.getBuffer();
@@ -37,8 +37,8 @@ public class Channel {
             buff.put(message);
             buff.put(message);
             conn.flush();
-        } catch (Exception e) {
-            ModComm.logException(String.format("Error sending packet on channel %s to player %s", name, player.getName()), e);
+        } catch(Exception e) {
+            ModComm.logException(String.format("Error sending packet on channel %s to player %s",name,player.getName()),e);
         }
     }
 

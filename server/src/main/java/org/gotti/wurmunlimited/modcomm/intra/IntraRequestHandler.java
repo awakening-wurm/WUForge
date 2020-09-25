@@ -1,8 +1,8 @@
 package org.gotti.wurmunlimited.modcomm.intra;
 
-import java.nio.ByteBuffer;
-
 import com.wurmonline.communication.SocketConnection;
+
+import java.nio.ByteBuffer;
 
 /**
  * ModIntraServer request handler (receiving end)
@@ -10,10 +10,11 @@ import com.wurmonline.communication.SocketConnection;
 @FunctionalInterface
 public interface IntraRequestHandler {
 
-	/**
-	 * Handle the request
-	 * @param connection Connection
-	 * @param recvBuffer Receive buffer
-	 */
-	void handleRequest(SocketConnection connection, ByteBuffer recvBuffer);
+    /**
+     * Handle the request
+     *
+     * @param connection Connection
+     * @param recvBuffer Receive buffer
+     */
+    void handleRequest(SocketConnection connection,ByteBuffer recvBuffer);
 }

@@ -110,9 +110,9 @@ public class ModPacks {
     public static void init() {
         try {
             jarPackClass = Class.forName("com.wurmonline.client.resources.JarPack");
-            jarPackConstructor = jarPackClass.getDeclaredConstructor(new Class<?>[]{ File.class });
-            jarPackInit = jarPackClass.getSuperclass().getDeclaredMethod("init",new Class<?>[]{ Resources.class });
-            jarPackGetResource = jarPackClass.getSuperclass().getDeclaredMethod("getResource",new Class<?>[]{ String.class });
+            jarPackConstructor = jarPackClass.getDeclaredConstructor(new Class<?>[]{File.class});
+            jarPackInit = jarPackClass.getSuperclass().getDeclaredMethod("init",new Class<?>[]{Resources.class});
+            jarPackGetResource = jarPackClass.getSuperclass().getDeclaredMethod("getResource",new Class<?>[]{String.class});
             resourceResolvedResources = ReflectionUtil.getField(Resources.class,"resolvedResources");
             resourcesUnresolvedResources = ReflectionUtil.getField(Resources.class,"unresolvedResources");
             resourcesPacks = ReflectionUtil.getField(Resources.class,"packs");

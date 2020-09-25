@@ -154,6 +154,7 @@ public class HookManager {
             private final Set<String> delegateJavaXPackages = Collections.synchronizedSet(new HashSet<>());
             private final Pattern javaxPackagePattern = Pattern.compile("^(?<pkg>javax\\.[^.]+)\\..*$");
 
+            @Override
             protected Class<?> delegateToParent(String classname) throws ClassNotFoundException {
                 Matcher matcher = javaxPackagePattern.matcher(classname);
                 if(!matcher.matches()) {
@@ -323,6 +324,7 @@ public class HookManager {
     @Deprecated
     public void registerHook(String className,String methodName,String methodType,InvocationHandler invocationHandler) {
         registerHook(className,methodName,methodType,new InvocationHandlerFactory() {
+            @Override
             public InvocationHandler createInvocationHandler() {
                 return invocationHandler;
             }
@@ -384,6 +386,6 @@ public class HookManager {
     public void appendSharedClassPath(Path path) throws NotFoundException, MalformedURLException {
         classPool.appendClassPath(path.toString());
         final URL url = path.toUri().toURL();
-        resourceClassLoaders.putIfAbsent(url,new URLClassLoader(new URL[]{ url },this.getClass().getClassLoader()));
+        resourceClassLoaders.putIfAbsent(url,new URLClassLoader(new URL[]{url},this.getClass().getClassLoader()));
     }
 }

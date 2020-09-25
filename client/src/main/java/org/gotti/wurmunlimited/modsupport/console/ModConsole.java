@@ -26,7 +26,7 @@ public class ModConsole {
             ClassPool classPool = HookManager.getInstance().getClassPool();
 
             // com.wurmonline.client.console.WurmConsole.handleInput2(String, boolean)
-            String descriptor = Descriptor.ofMethod(CtClass.voidType,new CtClass[]{ classPool.get("java.lang.String"),classPool.get("boolean") });
+            String descriptor = Descriptor.ofMethod(CtClass.voidType,new CtClass[]{classPool.get("java.lang.String"),classPool.get("boolean")});
 
             HookManager.getInstance().registerHook("com.wurmonline.client.console.WurmConsole","handleInput2",descriptor,new InvocationHandlerFactory() {
 

@@ -16,6 +16,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * @author ago
  */
 @Retention(CLASS)
-@Target(value = { ElementType.METHOD })
+@Target(value = {ElementType.METHOD})
 public @interface CallbackApi {
 }

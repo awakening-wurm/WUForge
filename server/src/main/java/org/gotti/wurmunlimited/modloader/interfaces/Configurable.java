@@ -9,12 +9,11 @@ import java.util.Properties;
  */
 public interface Configurable {
 
-	/**
-	 * Configure the module from configuration settings.
-	 * 
-	 * @param properties
-	 *            Properties from modname.properties and modname.config
-	 */
-	void configure(Properties properties);
+    /**
+     * Configure the module from configuration settings.
+     *
+     * @param properties Properties from modname.properties and modname.config
+     */
+    void configure(Properties properties);
 
 }

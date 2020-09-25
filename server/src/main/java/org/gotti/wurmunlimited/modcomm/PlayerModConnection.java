@@ -15,7 +15,7 @@ public class PlayerModConnection {
         version = -1;
     }
 
-    void activate(byte version, Set<Channel> channels) {
+    void activate(byte version,Set<Channel> channels) {
         this.active = true;
         this.version = version;
         this.channels = channels;

@@ -1,17 +1,14 @@
 package net.wurmunlimited.forge;
 
+import net.wurmunlimited.forge.util.FileUtils;
+import net.wurmunlimited.forge.util.PopupUtil;
+
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -95,7 +92,7 @@ public class WUForgeInstaller {
                 loggingProperties,
                 javassist
             };
-            if(deleteFiles(files)) {
+            if(FileUtils.deleteFiles(files)) {
                 try {
                     Files.move(wurmClient,agoClient,REPLACE_EXISTING);
                     return true;
@@ -105,7 +102,7 @@ public class WUForgeInstaller {
         }
 
         boolean uninstallMods() {
-            return deleteFiles(findFiles(modsDir));
+            return FileUtils.deleteFiles(FileUtils.findFiles(modsDir));
         }
     }
 
@@ -142,9 +139,9 @@ public class WUForgeInstaller {
                 javassist,
                 forgeProperties
             };
-            if(deleteFiles(files)) {
+            if(FileUtils.deleteFiles(files)) {
                 try {
-                    deleteFiles(findFiles(forgeDir));
+                    FileUtils.deleteFiles(FileUtils.findFiles(forgeDir));
                     Files.move(wurmClient,forgeClient,REPLACE_EXISTING);
                     return true;
                 } catch(IOException e) {}
@@ -153,24 +150,26 @@ public class WUForgeInstaller {
         }
 
         void writeProperties() {
-            extractFile(WUForgeInstaller.class,clientDir,"","forge.properties",false);
+            FileUtils.extractFile(WUForgeInstaller.class,clientDir,"forge.properties",false);
         }
 
         boolean createDirectories() {
             try {
-                createDirectory(forgeDir);
-                createDirectory(modsDir);
-                createDirectory(profilesDir);
-                createDirectory(profilesDefaultDir);
-                createDirectory(modsLibDir);
-                return true;
+                Path[] dirs = {
+                    forgeDir,
+                    modsDir,
+                    profilesDir,
+                    profilesDefaultDir,
+                    modsLibDir
+                };
+                return FileUtils.createDirectories(dirs);
             } catch(IOException e) {}
             return false;
         }
 
         void installAgoMods(Path agoModsDir) {
             if(!Files.exists(agoModsDir) || !Files.isDirectory(agoModsDir)) return;
-            List<Path> files = findFiles(agoModsDir);
+            List<Path> files = FileUtils.findFiles(agoModsDir);
             for(Path file : files) {
                 if(!Files.exists(file)) continue;
                 try {
@@ -179,7 +178,7 @@ public class WUForgeInstaller {
                     if(Files.isDirectory(file)) {
                         if(n==1) continue;
                         Path dir = modsLibDir.resolve(rel);
-                        createDirectory(dir);
+                        FileUtils.createDirectory(dir);
                     } else {
                         String fileName = rel.getFileName().toString();
                         Path forgeFile;
@@ -206,27 +205,27 @@ public class WUForgeInstaller {
     public void install() {
         clientDir = getWurmLauncherDirectory();
         if(clientDir==null) {
-            errorMessage("Could not find the installation directory\n"+
-                         "of the Wurm Unlimited client.\n"+
-                         "\n"+
-                         "Please contact support for help.");
+            PopupUtil.errorMessage("Could not find the installation directory\n"+
+                                   "of the Wurm Unlimited client.\n"+
+                                   "\n"+
+                                   "Please contact support for help.");
         }
         wurmFiles.init();
         agoFiles.init();
         forgeFiles.init();
         if(!wurmFiles.isInstalled || (agoFiles.isInstalled && forgeFiles.isInstalled)) {
-            errorMessage("The Wurm Unlimited client's file structure is\n"+
-                         "corrupted. Please uninstall and remove all\n"+
-                         "files and directories except PlayerFiles, and\n"+
-                         "re-install Wurm Unlimited, then run WUForge\n"
-                         +"again.");
+            PopupUtil.errorMessage("The Wurm Unlimited client's file structure is\n"+
+                                   "corrupted. Please uninstall and remove all\n"+
+                                   "files and directories except PlayerFiles, and\n"+
+                                   "re-install Wurm Unlimited, then run WUForge\n"
+                                   +"again.");
         }
         if(forgeFiles.isInstalled) {
-            if(confirmBoxYesNoCancel("Wurm Unlimited Forge is already installed.\n"+
-                                     "\n"+
-                                     "Would you like to uninstall Wurm Unlimited Forge? This will\n"+
-                                     "remove all installed mods including configurations and restore\n"+
-                                     "files to original state.")) {
+            if(PopupUtil.confirmBoxYesNoCancel("Wurm Unlimited Forge is already installed.\n"+
+                                               "\n"+
+                                               "Would you like to uninstall Wurm Unlimited Forge? This will\n"+
+                                               "remove all installed mods including configurations and restore\n"+
+                                               "files to original state.")) {
                 forgeFiles.uninstall();
             }
             System.exit(0);
@@ -236,44 +235,14 @@ public class WUForgeInstaller {
         }
         forgeFiles.writeProperties();
         if(!forgeFiles.createDirectories()) {
-            errorMessage("Could not create Wurm Unlimited Forge directories.\n"+
-                         "Please make sure you have the right permissions set,\n"+
-                         "if unsure contact support.");
+            PopupUtil.errorMessage("Could not create Wurm Unlimited Forge directories.\n"+
+                                   "Please make sure you have the right permissions set,\n"+
+                                   "if unsure contact support.");
         }
         if(agoFiles.isInstalled) {
             forgeFiles.installAgoMods(agoFiles.modsDir);
             agoFiles.uninstallMods();
         }
-    }
-
-    private void messageBox(String message) {
-        messageBox(message,JOptionPane.PLAIN_MESSAGE,0);
-    }
-
-    private void errorMessage(String message) {
-        messageBox(message,JOptionPane.ERROR_MESSAGE,1);
-    }
-
-    private void messageBox(String message,int messageType,int exitStatus) {
-        JOptionPane.showMessageDialog(null,message,"Wurm Unlimited Forge",messageType);
-        System.exit(exitStatus);
-    }
-
-    private boolean confirmBoxOkCancel(String question) {
-        return confirmBox(question,JOptionPane.OK_CANCEL_OPTION);
-    }
-
-    private boolean confirmBoxYesNo(String question) {
-        return confirmBox(question,JOptionPane.YES_NO_OPTION);
-    }
-
-    private boolean confirmBoxYesNoCancel(String question) {
-        return confirmBox(question,JOptionPane.YES_NO_CANCEL_OPTION);
-    }
-
-    private boolean confirmBox(String question,int optionType) {
-        int result = JOptionPane.showConfirmDialog(null,question,"Wurm Unlimited Forge",optionType);
-        return result==JOptionPane.OK_OPTION || result==JOptionPane.YES_OPTION;
     }
 
     private Path getWurmLauncherDirectory() {
@@ -332,107 +301,5 @@ public class WUForgeInstaller {
             }
         }
         return null;
-    }
-
-    private void writeTextFile(Path file,String text) {
-        writeFile(file,text.getBytes(Charset.forName("UTF-8")));
-    }
-
-    public void writeFile(Path file,byte[] bytes) {
-        OutputStream os = null;
-        try {
-            if(!Files.exists(file)) Files.createFile(file);
-            os = Files.newOutputStream(file);
-            os.write(bytes);
-            os.flush();
-            System.out.println("File Written Successfully: "+file.toAbsolutePath());
-        } catch(IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if(os!=null) os.close();
-            } catch(IOException e) {
-                System.out.println("Error in closing the file.");
-            }
-        }
-    }
-
-    public Path extractFile(Class cl,Path outputFile,String resourcePath,String resource,boolean overwrite) {
-        InputStream link = null;
-        try {
-            if(!Files.exists(outputFile) || overwrite) {
-                if(!resourcePath.endsWith("/")) resourcePath += "/";
-                link = cl.getResourceAsStream(resourcePath+resource);
-                Files.copy(link,outputFile.toAbsolutePath(),REPLACE_EXISTING);
-            }
-        } catch(IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if(link!=null) link.close();
-            } catch(IOException e) {
-                System.out.println("Error in closing the stream.");
-            }
-        }
-        return outputFile;
-    }
-
-    private List<Path> findFiles(Path dir) {
-        if(!Files.exists(dir) || !Files.isDirectory(dir)) return null;
-        List<Path> files = new ArrayList<>();
-        try {
-            LinkedList<Path> dirs = new LinkedList<>();
-            dirs.push(dir);
-            while(!dirs.isEmpty()) {
-                Path d = dirs.pop();
-                try(DirectoryStream<Path> ds = Files.newDirectoryStream(d)) {
-                    for(Path f : ds) {
-                        if(Files.isDirectory(f)) dirs.push(f);
-                        else if(Files.isRegularFile(f)) files.add(f);
-                    }
-                }
-            }
-        } catch(IOException e) {}
-        return files;
-    }
-
-    private boolean deleteFiles(Path[] files) {
-        if(files!=null && files.length>0) {
-            try {
-                for(int i=files.length-1; i>=0; --i) {
-                    if(files[i]==null) continue;
-                    Files.deleteIfExists(files[i]);
-                    files[i] = null;
-                }
-            } catch(IOException e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean deleteFiles(List<Path> files) {
-        if(files!=null && !files.isEmpty()) {
-            try {
-                for(int i=files.size()-1; i>=0; --i) {
-                    Files.deleteIfExists(files.get(i));
-                }
-            } catch(IOException e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean createDirectory(Path dir) throws IOException {
-        if(!Files.exists(dir)) {
-            try {
-                Files.createDirectory(dir);
-                return true;
-            } catch(IOException e) {}
-        } else if(!Files.isDirectory(dir)) {
-            throw new IOException("File "+dir.toAbsolutePath()+" is not a directory!");
-        }
-        return false;
     }
 }

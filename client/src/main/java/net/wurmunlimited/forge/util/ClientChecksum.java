@@ -1,4 +1,6 @@
-package net.spirangle.wuforge.util;
+package net.wurmunlimited.forge.util;
+
+import net.wurmunlimited.forge.Config;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
@@ -8,7 +10,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -17,13 +18,13 @@ import java.util.List;
 
 public class ClientChecksum {
 
-    public static String getChecksum(String modsDir,List<HashMap<String,Object>> mods) {
+    public static String getChecksum(List<HashMap<String,Object>> mods) {
         StringBuffer hashes = new StringBuffer();
         for(HashMap<String,Object> mod : mods) {
             String name = (String)mod.get("name");
             String hash = (String)mod.get("hash");
             if(name.equals("awakening")) {
-                String hash2 = getAwakeningModHash(modsDir);
+                String hash2 = getAwakeningModHash();
                 if(!hash2.equals(hash)) continue;
             }
             hashes.append(hash);
@@ -46,10 +47,9 @@ public class ClientChecksum {
         }
     }
 
-    private static String getAwakeningModHash(String modsDir) {
-        Path path = Paths.get(modsDir);
+    private static String getAwakeningModHash() {
         final String name = "awakening";
-        final Path jar = path.resolve(name).resolve(name+".jar");
+        final Path jar = Config.modsLibDir.resolve(name+".jar");
         try {
             return getHex(getHash(jar,"SHA-1"));
         } catch(IOException|NoSuchAlgorithmException e) {}

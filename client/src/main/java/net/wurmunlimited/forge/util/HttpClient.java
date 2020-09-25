@@ -1,4 +1,4 @@
-package net.spirangle.wuforge.util;
+package net.wurmunlimited.forge.util;
 
 import java.io.*;
 import java.net.HttpURLConnection;

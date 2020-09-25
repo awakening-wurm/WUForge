@@ -1,13 +1,12 @@
-package net.spirangle.wuforge;
+package net.wurmunlimited.forge;
 
 import com.wurmonline.client.WurmClientBase;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
-import net.spirangle.wuforge.packs.ServerPacks;
+import net.wurmunlimited.forge.packs.ServerPacks;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,14 +76,14 @@ public class WUForge {
         Properties properties = loadProperties("forge.properties");
         Config.getInstance().configure(properties);
         initSteamAppId();
-        ServerConnection.getInstance().getAvailableMods(Config.modsDir);
+        ServerConnection.getInstance().getAvailableMods(Config.modsLibDir);
         ServerConnection.getInstance().init();
         CodeInjections.preInit();
         ServerPacks.getInstance().init();
 
         try {
             logger.info("loadModsFromModDir");
-            new ModLoader().loadModsFromModDir(Paths.get(Config.modsDir));
+            new ModLoader().loadModsFromModDir();
 
             extractCredits();
 
@@ -152,7 +151,7 @@ public class WUForge {
         return file;
     }
 
-    public Properties loadProperties(String file) {
+    public static Properties loadProperties(String file) {
         Properties properties = new Properties();
         Path path = Paths.get(file);
         if(!Files.exists(path)) {

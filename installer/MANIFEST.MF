@@ -3,4 +3,4 @@ Implementation-Title: Wurm Unlimited Forge
 Implementation-Version: 0.1
 Built-By: Per Löwgren
 Class-Path: .
-Main-Class: net.spirangle.wuforge.WUForgeInstaller
+Main-Class: net.wurmunlimited.forge.WUForgeInstaller

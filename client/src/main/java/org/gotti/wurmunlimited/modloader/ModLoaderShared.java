@@ -3,7 +3,7 @@ package org.gotti.wurmunlimited.modloader;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.NotFoundException;
-import net.spirangle.wuforge.Config;
+import net.wurmunlimited.forge.Config;
 import org.gotti.wurmunlimited.modloader.classhooks.HookException;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 import org.gotti.wurmunlimited.modloader.dependency.DependencyResolver;
@@ -51,7 +51,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
 
     protected abstract void init();
 
-    public List<? extends ModEntry<T>> loadModsFromModDir(Path modDir) throws IOException {
+    public List<? extends ModEntry<T>> loadModsFromModDir() throws IOException {
         final String version = this.getVersion();
         logger.info(String.format("ModLoader version %1$s",version));
 
@@ -68,7 +68,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
         logger.info(String.format("Game version %1$s",steamVersion));
 
         // Discover installed (and possibly enabled) mods from modDir
-        final List<ModInfo> unorderedMods = discoverMods(modDir);
+        final List<ModInfo> unorderedMods = discoverMods();
 
         ModInstanceBuilder<T> entryBuilder = new ModInstanceBuilder<>(modClass);
         List<Entry> mods = new DependencyResolver<ModInfo>().provided(Collections.singleton(modLoaderProvided)).order(unorderedMods).stream().map(modInfo -> {
@@ -136,9 +136,9 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
      * <p>
      * It loads the properties in the following order with later entries overriding earlier ones
      * <ul>
-     * <li>Properties from mods/modname/modname.jar!META-INF/org.gotti.wurmunlimited.modloader/modname.properties</li>
-     * <li>Properties from mods/modname.properties</li>
-     * <li>Properties from mods/modname.config</li>
+     * <li>Properties from forge/lib/modname.jar!META-INF/org.gotti.wurmunlimited.modloader/modname.properties</li>
+     * <li>Properties from forge/profiles/[profile]/modname.properties</li>
+     * <li>Properties from forge/profiles/[profile]/modname.config</li>
      * </ul>
      * <p>
      * The mod will be set to ondemand loading if properties from the jar file exist but no .properties file. This will
@@ -147,16 +147,16 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
      * disable the mod per user request, although removing the files of the mod would probably be a better option.
      * <p>
      *
-     * @param modDir mods folder
      * @return
      * @throws IOException
      */
-    private List<ModInfo> discoverMods(Path modDir) throws IOException {
+    private List<ModInfo> discoverMods() throws IOException {
         final List<ModInfo> unorderedMods = new ArrayList<>();
-        try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(modDir,"*.jar")) {
+        try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Config.modsLibDir,"*.jar")) {
             for(Path modJar : directoryStream) {
-                String modName = modJar.getFileName().toString().replaceAll("\\.jar$","");
-                Path modInfo = modDir.resolve(Config.modsProfile).resolve(modName+".properties");
+                String fileName = modJar.getFileName().toString();
+                String modName = fileName.substring(0,fileName.length()-4);
+                Path modInfo = Config.modsProfileDir.resolve(modName+".properties");
                 if(!Files.exists(modInfo)) modInfo = null;
                 ModInfo mod = loadModFromInfo(modName,modInfo,modJar);
                 unorderedMods.add(mod);
@@ -175,7 +175,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
      * @throws IOException
      */
     private ModInfo loadModFromInfo(String modName,Path modInfo,Path jarFile) throws IOException {
-        Path configFile = Paths.get(Config.modsDir,modName+".config");
+        Path configFile = Config.modsProfileDir.resolve(modName+".config");
         Properties properties = new Properties();
         properties.put("forgeModsPath",Config.modsDir);
         if(modInfo==null || !Files.exists(modInfo))

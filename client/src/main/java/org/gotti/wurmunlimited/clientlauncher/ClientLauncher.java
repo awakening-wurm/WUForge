@@ -4,7 +4,6 @@ import javassist.ClassPool;
 import javassist.Loader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -35,7 +34,7 @@ public class ClientLauncher {
 
             Thread.currentThread().setContextClassLoader(loader);
 
-            loader.run("net.spirangle.wuforge.WUForge",args);
+            loader.run("WUForge",args);
         } catch(Throwable e) {
             e.printStackTrace();
             System.exit(-1);

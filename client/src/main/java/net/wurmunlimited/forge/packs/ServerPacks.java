@@ -1,4 +1,4 @@
-package net.spirangle.wuforge.packs;
+package net.wurmunlimited.forge.packs;
 
 import org.gotti.wurmunlimited.modcomm.*;
 import org.gotti.wurmunlimited.modsupport.packs.ModPacks;

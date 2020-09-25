@@ -1,4 +1,4 @@
-package net.spirangle.wuforge.client;
+package net.wurmunlimited.forge.client;
 
 import com.wurmonline.client.options.Options;
 

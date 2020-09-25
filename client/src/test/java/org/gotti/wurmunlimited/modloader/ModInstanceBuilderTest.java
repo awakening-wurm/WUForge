@@ -1,6 +1,6 @@
 package org.gotti.wurmunlimited.modloader;
 
-import net.spirangle.wuforge.Config;
+import net.wurmunlimited.forge.Config;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

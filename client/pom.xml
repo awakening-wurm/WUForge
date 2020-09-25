@@ -7,7 +7,7 @@
 	<name>Wurm Unlimited Forge - client</name>
 
 	<parent>
-		<groupId>net.spirangle.wuforge</groupId>
+		<groupId>net.wurmunlimited.forge</groupId>
 		<artifactId>wurm-unlimited-forge</artifactId>
 		<version>0.11</version>
 		<relativePath>../pom.xml</relativePath>

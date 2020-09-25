@@ -1,4 +1,4 @@
-package net.spirangle.wuforge;
+package net.wurmunlimited.forge;
 
 import javax.swing.*;
 import java.awt.*;

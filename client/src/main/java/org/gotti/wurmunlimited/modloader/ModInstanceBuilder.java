@@ -2,7 +2,7 @@ package org.gotti.wurmunlimited.modloader;
 
 import javassist.Loader;
 import javassist.NotFoundException;
-import net.spirangle.wuforge.Config;
+import net.wurmunlimited.forge.Config;
 import org.gotti.wurmunlimited.modloader.classhooks.HookException;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
@@ -62,11 +62,11 @@ class ModInstanceBuilder<T> {
     private List<Path> getClassLoaderEntries(String classpath) {
         List<Path> pathEntries = new ArrayList<>();
         String[] entries = classpath.split(",");
-        Path modPath = Paths.get(Config.modsDir);
+        Path libDir = Config.modsLibDir;
         for(String entry : entries) {
             try {
-                Path resolved = modPath.resolve(entry);
-                if(Files.exists(resolved) && !resolved.isAbsolute() && !modPath.relativize(resolved).startsWith("../")) {
+                Path resolved = libDir.resolve(entry);
+                if(Files.exists(resolved) && !resolved.isAbsolute() && !libDir.relativize(resolved).startsWith("../")) {
                     pathEntries.add(resolved);
                     continue;
                 }
@@ -74,18 +74,18 @@ class ModInstanceBuilder<T> {
                 // Path.resolve does not like wildcards
                 // continue resolving the entries via glob
             }
-            FileSystem fs = modPath.getFileSystem();
+            FileSystem fs = libDir.getFileSystem();
             final PathMatcher matcher = fs.getPathMatcher("glob:"+entry);
             SimpleFileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file,BasicFileAttributes attrs) {
-                    Path p = modPath.relativize(file);
+                    Path p = libDir.relativize(file);
                     if(matcher.matches(p)) pathEntries.add(file);
                     return FileVisitResult.CONTINUE;
                 }
             };
             try {
-                Files.walkFileTree(modPath,visitor);
+                Files.walkFileTree(libDir,visitor);
             } catch(IOException e) {
                 throw new HookException(e);
             }

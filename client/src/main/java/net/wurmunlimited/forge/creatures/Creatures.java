@@ -1,8 +1,8 @@
-package net.spirangle.wuforge.creatures;
+package net.wurmunlimited.forge.creatures;
 
 import com.wurmonline.client.renderer.CreatureData;
 import com.wurmonline.client.renderer.cell.CreatureCellRenderable;
-import net.spirangle.wuforge.Config;
+import net.wurmunlimited.forge.Config;
 
 
 public class Creatures {

@@ -1,4 +1,4 @@
-package net.spirangle.wuforge;
+package net.wurmunlimited.forge;
 
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
@@ -7,7 +7,7 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
-import net.spirangle.wuforge.util.Syringe;
+import net.wurmunlimited.forge.util.Syringe;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,9 +20,9 @@ public class CodeInjections {
     public static void preInit() {
         Syringe sbfx = Syringe.getSyringe("com.wurmonline.client.startup.ServerBrowserFX");
         sbfx.addField("private javafx.scene.control.ComboBox modsConfigBox;","null");
-        sbfx.addMethod("public void changeModsConfig() { net.spirangle.wuforge.WUForge.changeModsConfig(this.modsConfigBox); }");
-        sbfx.addMethod("public void launchModsSettings() { net.spirangle.wuforge.WUForge.launchModsSettings(this.modsConfigBox); }");
-        sbfx.insertAfter("initialize","net.spirangle.wuforge.WUForge.ServerBrowserFX_initialize(this.modsConfigBox);",null);
+        sbfx.addMethod("public void changeModsConfig() { WUForge.changeModsConfig(this.modsConfigBox); }");
+        sbfx.addMethod("public void launchModsSettings() { WUForge.launchModsSettings(this.modsConfigBox); }");
+        sbfx.insertAfter("initialize","WUForge.ServerBrowserFX_initialize(this.modsConfigBox);",null);
         sbfx.instrument(null,"(Ljavafx/application/Application;Ljava/lang/Runnable;)V",new ExprEditor() {
             int i = 0;
 
@@ -30,7 +30,7 @@ public class CodeInjections {
             public void edit(MethodCall mc) throws CannotCompileException {
                 if(mc.getMethodName().equals("getResource")) {
                     if(i==1 || i==2 || i==3) {
-                        mc.replace("$_ = net.spirangle.wuforge.WUForge.getResource($$);");
+                        mc.replace("$_ = WUForge.getResource($$);");
                         logger.info("WUForge: Change to custom server browser.");
                     }
                     ++i;
@@ -39,7 +39,7 @@ public class CodeInjections {
         });
         sbfx.setBody("launchForums","this.application.getHostServices().showDocument(\"http://forum.wurmonline.com\");",null);
         sbfx.setBody("launchWurmpedia","this.application.getHostServices().showDocument(\"http://www.wurmpedia.com/index.php/Main_Page\");",null);
-        sbfx.setBody("launchCredits","this.application.getHostServices().showDocument(net.spirangle.wuforge.WUForge.getCreditsURL());",null);
+        sbfx.setBody("launchCredits","this.application.getHostServices().showDocument(WUForge.getCreditsURL());",null);
         try {
             CtClass ctClass = sbfx.getCtClass();
             ClassFile classFile = sbfx.getCtClass().getClassFile();
@@ -70,9 +70,9 @@ public class CodeInjections {
         }
         /* World: */
         final Syringe world = Syringe.getSyringe("com.wurmonline.client.game.World");
-        String setServerInformation = "net.spirangle.wuforge.ServerConnection.handShake($0);\n";
+        String setServerInformation = "ServerConnection.handShake($0);\n";
         if(Config.customMap)
-            setServerInformation += "net.spirangle.wuforge.ServerConnection.setServerInformation($0,$1,$2,$3);\n";
+            setServerInformation += "ServerConnection.setServerInformation($0,$1,$2,$3);\n";
         world.insertBefore("setServerInformation","{\n"+setServerInformation+"}",null);
 
         /* SimpleServerConnectionClass: */
@@ -84,7 +84,7 @@ public class CodeInjections {
             public void edit(MethodCall mc) throws CannotCompileException {
                 if(mc.getMethodName().equals("get")) {
                     if(i==0) {
-                        mc.replace("$_ = $proceed($$);if($_==-101) {net.spirangle.wuforge.ServerConnection.handlePacket(bb);return;}");
+                        mc.replace("$_ = $proceed($$);if($_==-101) {ServerConnection.handlePacket(bb);return;}");
                         logger.info("SimpleServerConnectionClass: Handle custom server communication.");
                     }
                     ++i;
@@ -96,7 +96,7 @@ public class CodeInjections {
         final Syringe lwjglc = Syringe.getSyringe("com.wurmonline.client.LwjglClient");
         if(Config.useWindowedFullscreenSizeAndPosition) {
             lwjglc.insertBefore("getWindowedFullscreenSizeAndPosition","{\n"+
-                                                                       "   java.awt.Rectangle r = net.spirangle.wuforge.client.ClientWindow.getWindowedFullscreenSizeAndPosition();\n"+
+                                                                       "   java.awt.Rectangle r = ClientWindow.getWindowedFullscreenSizeAndPosition();\n"+
                                                                        "   if(r!=null) return r;\n"+
                                                                        "}",
                                 "Modified window update for fixed sized borderless window");
@@ -104,15 +104,15 @@ public class CodeInjections {
 
         /* TilePicker: */
         final Syringe tp = Syringe.getSyringe("com.wurmonline.client.renderer.TilePicker");
-        tp.setBody("getHoverName","return net.spirangle.wuforge.zones.Tiles.tilePickerName($0,$0.world,$0.x,$0.y,$0.section,$0.getDistance());",null);
+        tp.setBody("getHoverName","return Tiles.tilePickerName($0,$0.world,$0.x,$0.y,$0.section,$0.getDistance());",null);
 
         /* CaveWallPicker: */
         final Syringe cwp = Syringe.getSyringe("com.wurmonline.client.renderer.cave.CaveWallPicker");
-        cwp.setBody("getHoverName","return net.spirangle.wuforge.zones.Tiles.caveWallPickerName($0,$0.world,$0.x,$0.y,$0.name,$0.getDistance());",null);
+        cwp.setBody("getHoverName","return Tiles.caveWallPickerName($0,$0.world,$0.x,$0.y,$0.name,$0.getDistance());",null);
 
         /* CreatureCellRenderable: */
         final Syringe ccr = Syringe.getSyringe("com.wurmonline.client.renderer.cell.CreatureCellRenderable");
-        ccr.setBody("getHoverName","return net.spirangle.wuforge.creatures.Creatures.creatureCellRenderableName($0);",null);
+        ccr.setBody("getHoverName","return Creatures.creatureCellRenderableName($0);",null);
 
         if(Config.autoSaveToolBelt) {
             /* ToolBeltComponent: */

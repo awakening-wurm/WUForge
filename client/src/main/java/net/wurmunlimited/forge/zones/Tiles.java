@@ -1,4 +1,4 @@
-package net.spirangle.wuforge.zones;
+package net.wurmunlimited.forge.zones;
 
 import com.wurmonline.client.game.CaveDataBuffer;
 import com.wurmonline.client.game.World;
@@ -10,7 +10,7 @@ import com.wurmonline.mesh.FoliageAge;
 import com.wurmonline.mesh.GrassData;
 import com.wurmonline.mesh.Tiles.*;
 import com.wurmonline.shared.util.ItemTypeUtilites;
-import net.spirangle.wuforge.Config;
+import net.wurmunlimited.forge.Config;
 
 import static com.wurmonline.mesh.Tiles.*;
 

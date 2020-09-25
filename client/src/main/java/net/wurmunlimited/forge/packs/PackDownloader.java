@@ -1,4 +1,4 @@
-package net.spirangle.wuforge.packs;
+package net.wurmunlimited.forge.packs;
 
 import java.io.IOException;
 import java.io.InputStream;

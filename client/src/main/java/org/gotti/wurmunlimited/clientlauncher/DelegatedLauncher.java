@@ -2,10 +2,12 @@ package org.gotti.wurmunlimited.clientlauncher;
 
 import javassist.*;
 import javassist.bytecode.Descriptor;
+import net.wurmunlimited.forge.Config;
+import net.wurmunlimited.forge.WUForge;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
-import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,8 +17,11 @@ public class DelegatedLauncher {
 
     public static void main(String[] args) {
 
+        Properties properties = WUForge.loadProperties("forge.properties");
+        Config.getInstance().configure(properties);
+
         try {
-            new ModLoader().loadModsFromModDir(Paths.get("mods"));
+            new ModLoader().loadModsFromModDir();
 
             setupClientLoggerHooks();
 

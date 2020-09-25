@@ -3,7 +3,7 @@ package org.gotti.wurmunlimited.modloader;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.NotFoundException;
-import net.spirangle.wuforge.Config;
+import net.wurmunlimited.forge.Config;
 import org.assertj.core.api.Assertions;
 import org.gotti.wurmunlimited.modloader.callbacks.CallbackApi;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;

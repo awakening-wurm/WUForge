@@ -1,4 +1,4 @@
-package net.spirangle.wuforge;
+package net.wurmunlimited.forge;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
@@ -8,8 +8,8 @@ import com.wurmonline.client.game.World;
 import com.wurmonline.client.renderer.gui.WorldMap;
 import com.wurmonline.client.renderer.gui.maps.ClusterMap;
 import com.wurmonline.communication.SocketConnection;
-import net.spirangle.wuforge.util.ClientChecksum;
-import net.spirangle.wuforge.util.HttpClient;
+import net.wurmunlimited.forge.util.ClientChecksum;
+import net.wurmunlimited.forge.util.HttpClient;
 import org.gotti.wurmunlimited.modcomm.PacketWriter;
 import org.gotti.wurmunlimited.modloader.ReflectionUtil;
 
@@ -104,7 +104,7 @@ public class ServerConnection {
         }
     }
 
-    private String modsDir;
+    private Path modsDir;
     private Map<String,ClientMod> availableMods;
     private World world;
     private List<HashMap<String,Object>> installedMods;
@@ -121,6 +121,10 @@ public class ServerConnection {
     }
 
     public void getAvailableMods(String modsDir) {
+        getAvailableMods(Paths.get(modsDir));
+    }
+
+    public void getAvailableMods(Path modsDir) {
         this.modsDir = modsDir;
         try {
             HttpClient http = new HttpClient();
@@ -151,7 +155,7 @@ public class ServerConnection {
 
     public void init() {
         try {
-            getInstalledMods(Paths.get(modsDir));
+            getInstalledMods(modsDir);
             runAutoInstaller();
         } catch(IOException|NoSuchAlgorithmException e) {
             throw new RuntimeException("Error loading mod info: "+e.getMessage(),e);
@@ -219,20 +223,21 @@ public class ServerConnection {
                 writer.writeUTF(name);
                 writer.writeUTF(hash);
             }
-            writer.writeUTF(ClientChecksum.getChecksum(modsDir,installedMods));
+            writer.writeUTF(ClientChecksum.getChecksum(installedMods));
             sendPacket(writer);
         } catch(IOException e) {
             logger.log(Level.SEVERE,"Error sending mods: "+e.getMessage(),e);
         }
     }
 
-    private List<HashMap<String,Object>> getInstalledMods(final Path modDir) throws IOException, NoSuchAlgorithmException {
+    private List<HashMap<String,Object>> getInstalledMods(Path modDir) throws IOException,NoSuchAlgorithmException {
         if(this.installedMods==null) {
-            final List<HashMap<String,Object>> mods = new LinkedList<>();
-            try(final DirectoryStream<Path> directoryStream = Files.newDirectoryStream(modDir,"*.jar")) {
-                for(final Path modJar : directoryStream) {
-                    final String modName = modJar.getFileName().toString().replaceAll("\\.jar$","");
-                    final HashMap<String,Object> mod = getModInfo(modName,modJar,getSha1Sum(modJar),ClientChecksum.getMD5(modJar));
+            List<HashMap<String,Object>> mods = new LinkedList<>();
+            try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(modDir,"*.jar")) {
+                for(Path modJar : directoryStream) {
+                    String fileName = modJar.getFileName().toString();
+                    String modName = fileName.substring(0,fileName.length()-4);
+                    HashMap<String,Object> mod = getModInfo(modName,modJar,getSha1Sum(modJar),ClientChecksum.getMD5(modJar));
                     mods.add(mod);
                 }
             }

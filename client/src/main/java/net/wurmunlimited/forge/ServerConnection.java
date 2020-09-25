@@ -32,7 +32,7 @@ public class ServerConnection {
 
     private static final Logger logger = Logger.getLogger(ServerConnection.class.getName());
 
-    private static final String BASE_URL = "https://awakening.spirangle.net/";
+    private static final String BASE_URL = "https://forge.wurm-unlimited.net/";
 
     public static class ClientMod {
         String url;

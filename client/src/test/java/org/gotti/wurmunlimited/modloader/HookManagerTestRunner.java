@@ -23,7 +23,6 @@ public class HookManagerTestRunner extends BlockJUnit4ClassRunner {
 
     private static Class<?> load(Class<?> clazz) throws InitializationError {
         try {
-
             return Class.forName(clazz.getName(),true,loader);
         } catch(ClassNotFoundException e) {
             throw new InitializationError(e);

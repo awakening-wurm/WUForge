@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FileUtil {
@@ -22,6 +23,18 @@ public class FileUtil {
     private static final Logger logger = Logger.getLogger(FileUtil.class.getName());
 
     private static String OS = System.getProperty("os.name").toLowerCase();
+
+    public static boolean isWindows() {
+        return OS.contains("win");
+    }
+
+    public static boolean isMacintosh() {
+        return OS.contains("mac");
+    }
+
+    public static boolean isLinux() {
+        return OS.contains("nix") || OS.contains("nux") || OS.contains("aix");
+    }
 
     /** Write text in UTF-8 format to a file.
      *
@@ -74,6 +87,7 @@ public class FileUtil {
             }
         } catch(IOException e) {
             e.printStackTrace();
+            return null;
         } finally {
             try {
                 if(link!=null) link.close();
@@ -90,12 +104,16 @@ public class FileUtil {
         try {
             LinkedList<Path> dirs = new LinkedList<>();
             dirs.push(dir);
+            files.add(dir);
             while(!dirs.isEmpty()) {
-                Path d = dirs.pop();
+                Path d = dirs.pollFirst();
                 try(DirectoryStream<Path> ds = Files.newDirectoryStream(d)) {
                     for(Path f : ds) {
-                        if(Files.isDirectory(f)) dirs.push(f);
-                        else if(Files.isRegularFile(f)) files.add(f);
+                        if(Files.isRegularFile(f)) files.add(f);
+                        else if(Files.isDirectory(f)) {
+                            dirs.push(f);
+                            files.add(f);
+                        }
                     }
                 }
             }
@@ -151,6 +169,35 @@ public class FileUtil {
             else dirs[i] = null;
         }
         return true;
+    }
+
+    public static int copyDirectory(Path sourceDir,Path destDir,boolean overwrite) throws IOException {
+        if(!Files.exists(sourceDir) || !Files.isDirectory(sourceDir) ||
+           !Files.exists(destDir) || !Files.isDirectory(destDir)) return -1;
+        int files = 0;
+        try {
+            LinkedList<Path> dirs = new LinkedList<>();
+            dirs.push(sourceDir);
+            while(!dirs.isEmpty()) {
+                Path d = dirs.pollFirst();
+                Path r = sourceDir.relativize(d);
+                Path c = destDir.resolve(r);
+                if(!Files.exists(c)) createDirectory(c);
+                try(DirectoryStream<Path> ds = Files.newDirectoryStream(d)) {
+                    for(Path f : ds) {
+                        if(Files.isDirectory(f)) dirs.push(f);
+                        else if(Files.isRegularFile(f)) {
+                            Path t = c.resolve(f.getFileName());
+                            if(!Files.exists(t) || overwrite) {
+                                Files.copy(f,t,REPLACE_EXISTING,COPY_ATTRIBUTES);
+                                ++files;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(IOException e) {}
+        return files;
     }
 
     public static Properties loadProperties(String file) {

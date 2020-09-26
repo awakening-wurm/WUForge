@@ -1,6 +1,6 @@
 package net.wurmunlimited.forge;
 
-import net.wurmunlimited.forge.util.FileUtils;
+import net.wurmunlimited.forge.util.FileUtil;
 import net.wurmunlimited.forge.util.PopupUtil;
 
 import javax.swing.*;
@@ -92,7 +92,7 @@ public class WUForgeInstaller {
                 loggingProperties,
                 javassist
             };
-            if(FileUtils.deleteFiles(files)) {
+            if(FileUtil.deleteFiles(files)) {
                 try {
                     Files.move(wurmClient,agoClient,REPLACE_EXISTING);
                     return true;
@@ -102,7 +102,7 @@ public class WUForgeInstaller {
         }
 
         boolean uninstallMods() {
-            return FileUtils.deleteFiles(FileUtils.findFiles(modsDir));
+            return FileUtil.deleteFiles(FileUtil.findFiles(modsDir));
         }
     }
 
@@ -139,9 +139,9 @@ public class WUForgeInstaller {
                 javassist,
                 forgeProperties
             };
-            if(FileUtils.deleteFiles(files)) {
+            if(FileUtil.deleteFiles(files)) {
                 try {
-                    FileUtils.deleteFiles(FileUtils.findFiles(forgeDir));
+                    FileUtil.deleteFiles(FileUtil.findFiles(forgeDir));
                     Files.move(wurmClient,forgeClient,REPLACE_EXISTING);
                     return true;
                 } catch(IOException e) {}
@@ -150,7 +150,7 @@ public class WUForgeInstaller {
         }
 
         void writeProperties() {
-            FileUtils.extractFile(WUForgeInstaller.class,clientDir,"forge.properties",false);
+            FileUtil.extractFile(WUForgeInstaller.class,clientDir,"/forge.properties",false);
         }
 
         boolean createDirectories() {
@@ -162,14 +162,14 @@ public class WUForgeInstaller {
                     profilesDefaultDir,
                     modsLibDir
                 };
-                return FileUtils.createDirectories(dirs);
+                return FileUtil.createDirectories(dirs);
             } catch(IOException e) {}
             return false;
         }
 
         void installAgoMods(Path agoModsDir) {
             if(!Files.exists(agoModsDir) || !Files.isDirectory(agoModsDir)) return;
-            List<Path> files = FileUtils.findFiles(agoModsDir);
+            List<Path> files = FileUtil.findFiles(agoModsDir);
             for(Path file : files) {
                 if(!Files.exists(file)) continue;
                 try {
@@ -178,7 +178,7 @@ public class WUForgeInstaller {
                     if(Files.isDirectory(file)) {
                         if(n==1) continue;
                         Path dir = modsLibDir.resolve(rel);
-                        FileUtils.createDirectory(dir);
+                        FileUtil.createDirectory(dir);
                     } else {
                         String fileName = rel.getFileName().toString();
                         Path forgeFile;

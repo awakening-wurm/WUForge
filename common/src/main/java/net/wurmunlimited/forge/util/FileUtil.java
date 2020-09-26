@@ -7,13 +7,19 @@ import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class FileUtils {
+public class FileUtil {
+
+    private static final Logger logger = Logger.getLogger(FileUtil.class.getName());
 
     private static String OS = System.getProperty("os.name").toLowerCase();
 
@@ -145,5 +151,31 @@ public class FileUtils {
             else dirs[i] = null;
         }
         return true;
+    }
+
+    public static Properties loadProperties(String file) {
+        Properties properties = new Properties();
+        Path path = Paths.get(file);
+        if(!Files.exists(path)) {
+            logger.warning("The config file seems to be missing.");
+            return properties;
+        }
+        InputStream stream = null;
+        try {
+            logger.info("Opening the config file.");
+            stream = Files.newInputStream(path);
+            logger.info("Reading from the config file.");
+            properties.load(stream);
+            logger.info("Configuration loaded.");
+        } catch(Exception e) {
+            logger.log(Level.SEVERE,"Error while reloading properties file.",e);
+        } finally {
+            try {
+                if(stream!=null) stream.close();
+            } catch(Exception e) {
+                logger.log(Level.SEVERE,"Properties file not closed, possible file lock.",e);
+            }
+        }
+        return properties;
     }
 }

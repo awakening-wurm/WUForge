@@ -7,6 +7,7 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+import net.wurmunlimited.forge.config.ForgeClientConfig;
 import net.wurmunlimited.forge.util.Syringe;
 
 import java.util.logging.Level;
@@ -58,7 +59,7 @@ public class CodeInjections {
         }
 
         Syringe sockc = Syringe.getSyringe("com.wurmonline.communication.SocketConnection");
-        if(Config.connectionFix) {
+        if(ForgeClientConfig.connectionFix) {
             sockc.instrument("tick","()V",new ExprEditor() {
                 @Override
                 public void edit(MethodCall m) throws CannotCompileException {
@@ -71,7 +72,7 @@ public class CodeInjections {
         /* World: */
         final Syringe world = Syringe.getSyringe("com.wurmonline.client.game.World");
         String setServerInformation = "ServerConnection.handShake($0);\n";
-        if(Config.customMap)
+        if(ForgeClientConfig.customMap)
             setServerInformation += "ServerConnection.setServerInformation($0,$1,$2,$3);\n";
         world.insertBefore("setServerInformation","{\n"+setServerInformation+"}",null);
 
@@ -94,7 +95,7 @@ public class CodeInjections {
 
         /* LwjglClient: */
         final Syringe lwjglc = Syringe.getSyringe("com.wurmonline.client.LwjglClient");
-        if(Config.useWindowedFullscreenSizeAndPosition) {
+        if(ForgeClientConfig.useWindowedFullscreenSizeAndPosition) {
             lwjglc.insertBefore("getWindowedFullscreenSizeAndPosition","{\n"+
                                                                        "   java.awt.Rectangle r = ClientWindow.getWindowedFullscreenSizeAndPosition();\n"+
                                                                        "   if(r!=null) return r;\n"+
@@ -114,7 +115,7 @@ public class CodeInjections {
         final Syringe ccr = Syringe.getSyringe("com.wurmonline.client.renderer.cell.CreatureCellRenderable");
         ccr.setBody("getHoverName","return Creatures.creatureCellRenderableName($0);",null);
 
-        if(Config.autoSaveToolBelt) {
+        if(ForgeClientConfig.autoSaveToolBelt) {
             /* ToolBeltComponent: */
             final Syringe tbc = Syringe.getSyringe("com.wurmonline.client.renderer.gui.ToolBeltComponent");
             tbc.insertAfter("itemDropped","this.toolBelt.saveArrangement(com.wurmonline.client.settings.PlayerData.lastToolBelt);",null);

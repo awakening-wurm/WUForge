@@ -10,7 +10,7 @@ import com.wurmonline.mesh.FoliageAge;
 import com.wurmonline.mesh.GrassData;
 import com.wurmonline.mesh.Tiles.*;
 import com.wurmonline.shared.util.ItemTypeUtilites;
-import net.wurmunlimited.forge.Config;
+import net.wurmunlimited.forge.config.ForgeClientConfig;
 
 import static com.wurmonline.mesh.Tiles.*;
 
@@ -162,7 +162,7 @@ public class Tiles {
             }
         } else {
             if(wallSide==CAVE_SIDE_CORNER) {
-                if(Config.showExtraTooltips) {
+                if(ForgeClientConfig.showExtraTooltips) {
                     if(isDev || (distance+1)*15<mining) {
                         short floorHeight = world.getCaveBuffer().getRawFloor(x,y);
                         short ceilingHeight = world.getCaveBuffer().getRawCeiling(x,y);
@@ -191,7 +191,7 @@ public class Tiles {
 
     private static String caveWallPickerSlopeSuffix(final CaveWallPicker picker,final World world,final int distance,final boolean isDev) {
         if(isDev || (distance+1)*15<world.getPlayer().getSkillSet().getSkillValue("mining")) {
-            if(Config.showExtraTooltips) {
+            if(ForgeClientConfig.showExtraTooltips) {
                 String floor = caveWallPickerSlopeSuffix(picker,world,false);
                 String ceiling = caveWallPickerSlopeSuffix(picker,world,true);
                 if(floor.equals(ceiling)) return " ("+floor+")";

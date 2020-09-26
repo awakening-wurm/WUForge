@@ -3,19 +3,19 @@ package net.wurmunlimited.forge;
 import com.wurmonline.client.WurmClientBase;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
+import net.wurmunlimited.forge.config.ForgeClientConfig;
+import net.wurmunlimited.forge.config.ForgeConfig;
 import net.wurmunlimited.forge.packs.ServerPacks;
+import net.wurmunlimited.forge.util.FileUtil;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,10 +73,11 @@ public class WUForge {
     private void init(String[] args) {
         System.out.println("Running: WUForge");
 
-        Properties properties = loadProperties("forge.properties");
-        Config.getInstance().configure(properties);
+        Properties properties = FileUtil.loadProperties("forge.properties");
+        ForgeClientConfig config = ForgeClientConfig.getInstance();
+        config.configure(properties);
         initSteamAppId();
-        ServerConnection.getInstance().getAvailableMods(Config.modsLibDir);
+        ServerConnection.getInstance().getAvailableMods(config.getModsLibDir());
         ServerConnection.getInstance().init();
         CodeInjections.preInit();
         ServerPacks.getInstance().init();
@@ -99,8 +100,8 @@ public class WUForge {
     }
 
     private void initSteamAppId() {
-        File dir = new File("");
-        extractFile(WUForge.class,dir,"","steam_appid.txt");
+        Path dir = Paths.get("steam_appid.txt");
+        FileUtil.extractFile(WUForge.class,dir,"/steam_appid.txt",false);
         /*try {
             Path steamAppId = Paths.get("steam_appid.txt");
             if(!Files.exists(steamAppId)) {
@@ -114,100 +115,22 @@ public class WUForge {
     }
 
     private void extractCredits() {
-        File htmlDir = new File(Config.forgeDir+File.separator+"html");
-        if(!htmlDir.exists()) htmlDir.mkdir();
-        File file = extractFile(WurmClientBase.class,htmlDir,"html","credits_wu.html");
-        extractFile(WurmClientBase.class,htmlDir,"html","unlimited.png");
+        ForgeConfig config = ForgeClientConfig.getInstance();
+        Path htmlDir = config.getForgeDir().resolve("html");
+        if(!Files.exists(htmlDir)) {
+            try {
+                FileUtil.createDirectory(htmlDir);
+            } catch(IOException e) {
+                return;
+            }
+        }
+        Path file = FileUtil.extractFile(WurmClientBase.class,htmlDir,"html/credits_wu.html",false);
+        FileUtil.extractFile(WurmClientBase.class,htmlDir,"html/unlimited.png",false);
         if(file!=null) {
             try {
-                creditsURL = file.toURI().toURL().toString();
+                creditsURL = file.toUri().toURL().toString();
                 logger.info("Credits URL: "+creditsURL);
             } catch(MalformedURLException e) {}
         }
     }
-
-    public File extractFile(Class cl,File outputDir,String resourcePath,String resource) {
-        String dir = outputDir.toString();
-        String out = resource;
-        if(dir.length()>0) out = dir+(dir.endsWith(File.separator)? "" : File.separator)+out;
-        File file = new File(out);
-        InputStream link = null;
-        try {
-            if(!file.exists()) {
-                if(!resourcePath.endsWith("/")) resourcePath += "/";
-                link = cl.getResourceAsStream(resourcePath+resource);
-                Files.copy(link,file.getAbsoluteFile().toPath(),StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch(IOException e) {
-            e.printStackTrace();
-            file = null;
-        } finally {
-            try {
-                if(link!=null) link.close();
-            } catch(IOException e) {
-                System.out.println("Error in closing the stream.");
-            }
-        }
-        return file;
-    }
-
-    public static Properties loadProperties(String file) {
-        Properties properties = new Properties();
-        Path path = Paths.get(file);
-        if(!Files.exists(path)) {
-            logger.warning("The config file seems to be missing.");
-            return properties;
-        }
-        InputStream stream = null;
-        try {
-            logger.info("Opening the config file.");
-            stream = Files.newInputStream(path);
-            logger.info("Reading from the config file.");
-            properties.load(stream);
-            logger.info("Configuration loaded.");
-        } catch(Exception e) {
-            logger.log(Level.SEVERE,"Error while reloading properties file.",e);
-        } finally {
-            try {
-                if(stream!=null) stream.close();
-            } catch(Exception e) {
-                logger.log(Level.SEVERE,"Properties file not closed, possible file lock.",e);
-            }
-        }
-        return properties;
-    }
-
-    /*private void initLogger() {
-        Formatter formatter = new OneLineLogMessageFormatter();
-        Handler handler = new StreamHandler(System.out,new SimpleFormatter()) {
-            @Override
-            public void publish(LogRecord record) {
-                if(!CONSOLE_LOGGER.equals(record.getLoggerName())) {
-                    try {
-                        inLogHandler.set(true);
-                        System.out.println(formatter.format(record));
-                    } finally {
-                        inLogHandler.remove();
-                    }
-                }
-            }
-        };
-        Logger.getLogger("").addHandler(handler);
-    }
-
-    public ConsoleListenerClass createConsoleListener() {
-        initLogger();
-        return new ConsoleListenerClass() {
-            @Override
-            public void consoleOutput(String message) {
-                Boolean b = inLogHandler.get();
-                if(b==null || !b) {
-                    Logger.getLogger(CONSOLE_LOGGER).log(Level.INFO,message);
-                }
-            }
-
-            @Override
-            public void consoleClosed() {}
-        };
-    }*/
 }

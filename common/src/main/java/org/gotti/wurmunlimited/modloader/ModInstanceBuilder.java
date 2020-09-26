@@ -2,7 +2,7 @@ package org.gotti.wurmunlimited.modloader;
 
 import javassist.Loader;
 import javassist.NotFoundException;
-import net.wurmunlimited.forge.Config;
+import net.wurmunlimited.forge.config.ForgeConfig;
 import org.gotti.wurmunlimited.modloader.classhooks.HookException;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
@@ -60,9 +60,10 @@ class ModInstanceBuilder<T> {
     }
 
     private List<Path> getClassLoaderEntries(String classpath) {
+        ForgeConfig config = ForgeConfig.getInstance();
         List<Path> pathEntries = new ArrayList<>();
         String[] entries = classpath.split(",");
-        Path libDir = Config.modsLibDir;
+        Path libDir = config.getModsLibDir();
         for(String entry : entries) {
             try {
                 Path resolved = libDir.resolve(entry);

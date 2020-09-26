@@ -3,7 +3,8 @@ package org.gotti.wurmunlimited.modloader;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.NotFoundException;
-import net.wurmunlimited.forge.Config;
+import net.wurmunlimited.forge.config.ForgeConfig;
+import org.gotti.wurmunlimited.modloader.ModInstanceBuilder;
 import org.gotti.wurmunlimited.modloader.classhooks.HookException;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 import org.gotti.wurmunlimited.modloader.dependency.DependencyResolver;
@@ -151,12 +152,13 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
      * @throws IOException
      */
     private List<ModInfo> discoverMods() throws IOException {
+        ForgeConfig config = ForgeConfig.getInstance();
         final List<ModInfo> unorderedMods = new ArrayList<>();
-        try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Config.modsLibDir,"*.jar")) {
+        try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(config.getModsLibDir(),"*.jar")) {
             for(Path modJar : directoryStream) {
                 String fileName = modJar.getFileName().toString();
                 String modName = fileName.substring(0,fileName.length()-4);
-                Path modInfo = Config.modsProfileDir.resolve(modName+".properties");
+                Path modInfo = config.getModsProfileDir().resolve(modName+".properties");
                 if(!Files.exists(modInfo)) modInfo = null;
                 ModInfo mod = loadModFromInfo(modName,modInfo,modJar);
                 unorderedMods.add(mod);
@@ -175,9 +177,10 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
      * @throws IOException
      */
     private ModInfo loadModFromInfo(String modName,Path modInfo,Path jarFile) throws IOException {
-        Path configFile = Config.modsProfileDir.resolve(modName+".config");
+        ForgeConfig config = ForgeConfig.getInstance();
+        Path configFile = config.getModsProfileDir().resolve(modName+".config");
         Properties properties = new Properties();
-        properties.put("forgeModsPath",Config.modsDir);
+        properties.put("forgeModsPath",config.getModsDir());
         if(modInfo==null || !Files.exists(modInfo))
             properties.put("depend.ondemand","true");
         loadPropertiesFromJar(properties,modName,jarFile,configFile);

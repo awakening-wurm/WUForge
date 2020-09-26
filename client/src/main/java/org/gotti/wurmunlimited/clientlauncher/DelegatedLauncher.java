@@ -2,8 +2,8 @@ package org.gotti.wurmunlimited.clientlauncher;
 
 import javassist.*;
 import javassist.bytecode.Descriptor;
-import net.wurmunlimited.forge.Config;
-import net.wurmunlimited.forge.WUForge;
+import net.wurmunlimited.forge.config.ForgeClientConfig;
+import net.wurmunlimited.forge.util.FileUtil;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
@@ -17,8 +17,8 @@ public class DelegatedLauncher {
 
     public static void main(String[] args) {
 
-        Properties properties = WUForge.loadProperties("forge.properties");
-        Config.getInstance().configure(properties);
+        Properties properties = FileUtil.loadProperties("forge.properties");
+        ForgeClientConfig.getInstance().configure(properties);
 
         try {
             new ModLoader().loadModsFromModDir();

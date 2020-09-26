@@ -1,5 +1,7 @@
 package org.gotti.wurmunlimited.serverlauncher;
 
+import net.wurmunlimited.forge.config.ForgeServerConfig;
+import net.wurmunlimited.forge.util.FileUtil;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 import org.gotti.wurmunlimited.modloader.interfaces.ModEntry;
@@ -8,12 +10,17 @@ import org.gotti.wurmunlimited.modloader.server.ServerHook;
 
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DelegatedLauncher {
 
     public static void main(String[] args) {
+
+        Properties properties = FileUtil.loadProperties("forge.properties");
+        ForgeServerConfig config = ForgeServerConfig.getInstance();
+        config.configure(properties);
 
         try {
             ModLoader modLoader = new ModLoader();

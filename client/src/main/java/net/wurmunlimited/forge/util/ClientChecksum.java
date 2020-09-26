@@ -1,6 +1,6 @@
 package net.wurmunlimited.forge.util;
 
-import net.wurmunlimited.forge.Config;
+import net.wurmunlimited.forge.config.ForgeConfig;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
@@ -48,8 +48,9 @@ public class ClientChecksum {
     }
 
     private static String getAwakeningModHash() {
+        ForgeConfig config = ForgeConfig.getInstance();
         final String name = "awakening";
-        final Path jar = Config.modsLibDir.resolve(name+".jar");
+        final Path jar = config.getModsLibDir().resolve(name+".jar");
         try {
             return getHex(getHash(jar,"SHA-1"));
         } catch(IOException|NoSuchAlgorithmException e) {}

@@ -2,7 +2,7 @@ package net.wurmunlimited.forge.creatures;
 
 import com.wurmonline.client.renderer.CreatureData;
 import com.wurmonline.client.renderer.cell.CreatureCellRenderable;
-import net.wurmunlimited.forge.Config;
+import net.wurmunlimited.forge.config.ForgeClientConfig;
 
 
 public class Creatures {
@@ -27,7 +27,7 @@ public class Creatures {
 
     public static String getDescription(final CreatureData creature) {
         String model = creature.getModelName().toString();
-        if(Config.showExtraTooltips) {
+        if(ForgeClientConfig.showExtraTooltips) {
             String gender = null, col = null;
             if(model.contains(".male")) gender = "male";
             else if(model.contains(".female")) gender = "female";

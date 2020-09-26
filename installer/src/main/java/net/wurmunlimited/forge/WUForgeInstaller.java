@@ -1,6 +1,7 @@
 package net.wurmunlimited.forge;
 
 import net.wurmunlimited.forge.util.FileUtil;
+import net.wurmunlimited.forge.util.HttpClient;
 import net.wurmunlimited.forge.util.PopupUtil;
 
 import javax.swing.*;
@@ -12,18 +13,16 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static net.wurmunlimited.forge.interfaces.ForgeConstants.BASE_URL;
 
 public class WUForgeInstaller {
-
-    private static String OS = System.getProperty("os.name").toLowerCase();
 
     public static void main(final String[] args) {
         WUForgeInstaller installer = new WUForgeInstaller();
         installer.install();
     }
 
-    private class WurmFiles {
-        boolean isInstalled;
+    class WurmFiles {
         Path wurmLauncher;
         Path clientJar;
         Path commonJar;
@@ -44,20 +43,22 @@ public class WUForgeInstaller {
             nativeLibsDir = clientDir.resolve("nativelibs");
             packsDir = clientDir.resolve("packs");
             playerFilesDir = clientDir.resolve("PlayerFiles");
-            isInstalled = Files.exists(wurmLauncher) && Files.isRegularFile(wurmLauncher) &&
-                          Files.exists(clientJar) && Files.isRegularFile(clientDir) &&
-                          Files.exists(commonJar) && Files.isRegularFile(commonJar) &&
-                          Files.exists(launchConfig) && Files.isRegularFile(launchConfig) &&
-                          Files.exists(libsteamApi) && Files.isRegularFile(libsteamApi) &&
-                          Files.exists(libDir) && Files.isDirectory(libDir) &&
-                          Files.exists(nativeLibsDir) && Files.isDirectory(nativeLibsDir) &&
-                          Files.exists(packsDir) && Files.isDirectory(packsDir) &&
-                          Files.exists(playerFilesDir) && Files.isDirectory(playerFilesDir);
+        }
+
+        boolean isInstalled() {
+            return Files.exists(wurmLauncher) && Files.isRegularFile(wurmLauncher) &&
+                   Files.exists(clientJar) && Files.isRegularFile(clientJar) &&
+                   Files.exists(commonJar) && Files.isRegularFile(commonJar) &&
+                   Files.exists(launchConfig) && Files.isRegularFile(launchConfig) &&
+                   Files.exists(libsteamApi) && Files.isRegularFile(libsteamApi) &&
+                   Files.exists(libDir) && Files.isDirectory(libDir) &&
+                   Files.exists(nativeLibsDir) && Files.isDirectory(nativeLibsDir) &&
+                   Files.exists(packsDir) && Files.isDirectory(packsDir) &&
+                   Files.exists(playerFilesDir) && Files.isDirectory(playerFilesDir);
         }
     }
 
-    private class AgoFiles {
-        boolean isInstalled ;
+    class AgoFiles {
         Path agoClient;
         Path wurmClient;
         Path modLauncher;
@@ -78,8 +79,11 @@ public class WUForgeInstaller {
             loggingProperties = clientDir.resolve("logging.properties");
             javassist = clientDir.resolve("javassist.jar");
             modsDir = clientDir.resolve("mods");
-            isInstalled = Files.exists(wurmClient) && Files.isRegularFile(wurmClient) &&
-                          Files.exists(modsDir) && Files.isDirectory(modsDir);
+        }
+
+        boolean isInstalled() {
+            return Files.exists(wurmClient) && Files.isRegularFile(wurmClient) &&
+                   Files.exists(modsDir) && Files.isDirectory(modsDir);
         }
 
         boolean uninstall() {
@@ -106,11 +110,11 @@ public class WUForgeInstaller {
         }
     }
 
-    private class ForgeFiles {
-        boolean isInstalled;
+    class ForgeFiles {
         Path forgeProperties;
         Path forgeClient;
         Path wurmClient;
+        Path loggingProperties;
         Path javassist;
         Path forgeDir;
         Path modsDir;
@@ -122,22 +126,27 @@ public class WUForgeInstaller {
             forgeProperties = clientDir.resolve("forge.properties");
             forgeClient = clientDir.resolve("client.jar");
             wurmClient = clientDir.resolve("forge.client.jar");
+            loggingProperties = clientDir.resolve("logging.properties");
             javassist = clientDir.resolve("javassist.jar");
             forgeDir = clientDir.resolve("forge");
             modsDir = forgeDir.resolve("mods");
             profilesDir = modsDir.resolve("profiles");
             profilesDefaultDir = profilesDir.resolve("default");
             modsLibDir = modsDir.resolve("lib");
-            isInstalled = Files.exists(forgeProperties) && Files.isRegularFile(forgeProperties) &&
-                          Files.exists(wurmClient) && Files.isRegularFile(wurmClient) &&
-                          Files.exists(forgeDir) && Files.isDirectory(forgeDir);
+        }
+
+        boolean isInstalled() {
+            return Files.exists(forgeProperties) && Files.isRegularFile(forgeProperties) &&
+                   Files.exists(wurmClient) && Files.isRegularFile(wurmClient) &&
+                   Files.exists(forgeDir) && Files.isDirectory(forgeDir);
         }
 
         boolean uninstall() {
             Path[] files = {
                 forgeClient,
                 javassist,
-                forgeProperties
+                forgeProperties,
+                loggingProperties
             };
             if(FileUtil.deleteFiles(files)) {
                 try {
@@ -150,7 +159,6 @@ public class WUForgeInstaller {
         }
 
         void writeProperties() {
-            FileUtil.extractFile(WUForgeInstaller.class,clientDir,"/forge.properties",false);
         }
 
         boolean createDirectories() {
@@ -165,6 +173,20 @@ public class WUForgeInstaller {
                 return FileUtil.createDirectories(dirs);
             } catch(IOException e) {}
             return false;
+        }
+
+        boolean installForge() {
+            try {
+                Files.move(forgeClient,wurmClient,REPLACE_EXISTING);
+            } catch(IOException e) {
+                return false;
+            }
+            boolean ret = true;
+            ret = HttpClient.download(BASE_URL+"download/client.jar",forgeClient) && ret;
+            ret = HttpClient.download(BASE_URL+"download/javassist.jar",javassist) && ret;
+            ret = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null && ret;
+            ret = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null && ret;
+            return ret;
         }
 
         void installAgoMods(Path agoModsDir) {
@@ -194,15 +216,15 @@ public class WUForgeInstaller {
         }
     }
 
-    private Path clientDir = null;
-    private WurmFiles wurmFiles = new WurmFiles();
-    private AgoFiles agoFiles = new AgoFiles();
-    private ForgeFiles forgeFiles = new ForgeFiles();
+    Path clientDir = null;
+    WurmFiles wurmFiles = new WurmFiles();
+    AgoFiles agoFiles = new AgoFiles();
+    ForgeFiles forgeFiles = new ForgeFiles();
 
-    private WUForgeInstaller() {
+    WUForgeInstaller() {
     }
 
-    public void install() {
+    void install() {
         clientDir = getWurmLauncherDirectory();
         if(clientDir==null) {
             PopupUtil.errorMessage("Could not find the installation directory\n"+
@@ -213,14 +235,17 @@ public class WUForgeInstaller {
         wurmFiles.init();
         agoFiles.init();
         forgeFiles.init();
-        if(!wurmFiles.isInstalled || (agoFiles.isInstalled && forgeFiles.isInstalled)) {
+        boolean wuIsInstalled = wurmFiles.isInstalled();
+        boolean agoIsInstalled = agoFiles.isInstalled();
+        boolean forgeIsInstalled = forgeFiles.isInstalled();
+        if(!wuIsInstalled || (agoIsInstalled && forgeIsInstalled)) {
             PopupUtil.errorMessage("The Wurm Unlimited client's file structure is\n"+
                                    "corrupted. Please uninstall and remove all\n"+
                                    "files and directories except PlayerFiles, and\n"+
                                    "re-install Wurm Unlimited, then run WUForge\n"
                                    +"again.");
         }
-        if(forgeFiles.isInstalled) {
+        if(forgeIsInstalled) {
             if(PopupUtil.confirmBoxYesNoCancel("Wurm Unlimited Forge is already installed.\n"+
                                                "\n"+
                                                "Would you like to uninstall Wurm Unlimited Forge? This will\n"+
@@ -230,7 +255,7 @@ public class WUForgeInstaller {
             }
             System.exit(0);
         }
-        if(agoFiles.isInstalled) {
+        if(agoIsInstalled) {
             agoFiles.uninstall();
         }
         forgeFiles.writeProperties();
@@ -239,26 +264,28 @@ public class WUForgeInstaller {
                                    "Please make sure you have the right permissions set,\n"+
                                    "if unsure contact support.");
         }
-        if(agoFiles.isInstalled) {
+        if(agoIsInstalled) {
             forgeFiles.installAgoMods(agoFiles.modsDir);
             agoFiles.uninstallMods();
         }
+
+        forgeFiles.installForge();
     }
 
-    private Path getWurmLauncherDirectory() {
+    Path getWurmLauncherDirectory() {
         Path directory;
         String sep = File.separator;
         Path wuDir = Paths.get("steamapps"+sep+"common"+sep+"Wurm Unlimited"+sep+"WurmLauncher");
-        if(OS.contains("win")) {
+        if(FileUtil.isWindows()) {
             directory = Paths.get("C:\\Program Files (x86)\\Steam").resolve(wuDir);
             if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
             directory = Paths.get("D:\\Program Files (x86)\\Steam").resolve(wuDir);
             if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
-        } else if(OS.contains("mac")) {
+        } else if(FileUtil.isMacintosh()) {
             String homeDir = System.getProperty("user.home");
             directory = Paths.get(homeDir+"/Library/Application Support/Steam").resolve(wuDir);
             if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
-        } else if(OS.contains("nix") || OS.contains("nux") || OS.contains("aix")) {
+        } else if(FileUtil.isLinux()) {
             String homeDir = System.getProperty("user.home");
             directory = Paths.get(homeDir+"/.steam/steam").resolve(wuDir);
             if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
@@ -299,6 +326,8 @@ public class WUForgeInstaller {
                     if(parent.getFileName().toString().equals("WurmLauncher")) return parent;
                 }
             }
+        } else {
+            System.exit(0);
         }
         return null;
     }

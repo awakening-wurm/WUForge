@@ -7,18 +7,29 @@ import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public abstract class ForgeConfig implements Configurable {
+public class ForgeConfig implements Configurable {
 
     private static final Logger logger = Logger.getLogger(ForgeConfig.class.getName());
 
-
     protected static ForgeConfig instance = null;
+
+    public static ForgeConfig init(Properties properties) {
+        if(instance==null) {
+            instance = new ForgeConfig();
+            instance.configure(properties);
+        }
+        return instance;
+    }
+
+    public static void close() {
+        instance = null;
+    }
 
     public static ForgeConfig getInstance() {
         return instance;
     }
 
-    protected String modsProfile = null;
+    protected String modsProfile = "default";
     protected Path forgeDir = null;
     protected Path modsDir = null;
     protected Path modsProfilesDir = null;
@@ -31,7 +42,7 @@ public abstract class ForgeConfig implements Configurable {
     @Override
     public void configure(Properties properties) {
         modsProfile = properties.getProperty("modsProfile",modsProfile);
-        forgeDir = Paths.get("forge");
+        forgeDir = Paths.get(properties.getProperty("forgeDir","forge"));
         modsDir = forgeDir.resolve("mods");
         modsProfilesDir = modsDir.resolve("profiles");
         modsProfileDir = modsProfilesDir.resolve(modsProfile);

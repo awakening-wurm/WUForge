@@ -19,8 +19,7 @@ public class DelegatedLauncher {
     public static void main(String[] args) {
 
         Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeServerConfig config = ForgeServerConfig.getInstance();
-        config.configure(properties);
+        ForgeServerConfig.init(properties);
 
         try {
             ModLoader modLoader = new ModLoader();

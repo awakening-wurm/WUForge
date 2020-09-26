@@ -4,8 +4,15 @@ import java.util.Properties;
 
 public class ForgeServerConfig extends ForgeConfig {
 
+    public static ForgeConfig init(Properties properties) {
+        if(instance==null) {
+            instance = new ForgeServerConfig();
+            instance.configure(properties);
+        }
+        return instance;
+    }
+
     public static ForgeServerConfig getInstance() {
-        if(instance==null) instance = new ForgeServerConfig();
         if(!(instance instanceof ForgeServerConfig)) {
             throw new RuntimeException("Configurations error, wrong type of configuration class requested.");
         }

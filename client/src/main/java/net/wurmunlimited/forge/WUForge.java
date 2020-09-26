@@ -74,8 +74,7 @@ public class WUForge {
         System.out.println("Running: WUForge");
 
         Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeClientConfig config = ForgeClientConfig.getInstance();
-        config.configure(properties);
+        ForgeConfig config = ForgeClientConfig.init(properties);
         initSteamAppId();
         ServerConnection.getInstance().getAvailableMods(config.getModsLibDir());
         ServerConnection.getInstance().init();

@@ -11,8 +11,15 @@ public class ForgeClientConfig extends ForgeConfig {
     public static boolean autoSaveToolBelt = true;
     public static boolean customMap = true;
 
+    public static ForgeConfig init(Properties properties) {
+        if(instance==null) {
+            instance = new ForgeClientConfig();
+            instance.configure(properties);
+        }
+        return instance;
+    }
+
     public static ForgeClientConfig getInstance() {
-        if(instance==null) instance = new ForgeClientConfig();
         if(!(instance instanceof ForgeClientConfig)) {
             throw new RuntimeException("Configurations error, wrong type of configuration class requested.");
         }

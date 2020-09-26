@@ -31,7 +31,6 @@ public class WUForge {
         System.out.println("Running: WUForge");
 
         Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeServerConfig config = ForgeServerConfig.getInstance();
-        config.configure(properties);
+        ForgeServerConfig.init(properties);
     }
 }

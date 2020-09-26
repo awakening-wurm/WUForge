@@ -31,12 +31,12 @@ public class ModInstanceBuilderTest {
     }
 
     @Test
-    public void testShared() throws ClassNotFoundException, IOException {
+    public void testShared() throws IOException {
         checkResources(true);
     }
 
     @Test
-    public void test() throws ClassNotFoundException, IOException {
+    public void test() throws IOException {
         checkResources(false);
     }
 
@@ -60,7 +60,7 @@ public class ModInstanceBuilderTest {
     }
 
     @Test
-    public void testWildcard() throws ClassNotFoundException, IOException {
+    public void testWildcard() throws IOException {
         ForgeConfig config = ForgeConfig.getInstance();
         Properties properties = new Properties();
         properties.setProperty("sharedClassLoader",Boolean.toString(false));

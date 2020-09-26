@@ -27,12 +27,12 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static net.wurmunlimited.forge.interfaces.ForgeConstants.BASE_URL;
+
 
 public class ServerConnection {
 
     private static final Logger logger = Logger.getLogger(ServerConnection.class.getName());
-
-    private static final String BASE_URL = "https://forge.wurm-unlimited.net/";
 
     public static class ClientMod {
         String url;

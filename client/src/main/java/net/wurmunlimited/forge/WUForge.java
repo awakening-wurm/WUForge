@@ -99,18 +99,8 @@ public class WUForge {
     }
 
     private void initSteamAppId() {
-        Path dir = Paths.get("steam_appid.txt");
-        FileUtil.extractFile(WUForge.class,dir,"/steam_appid.txt",false);
-        /*try {
-            Path steamAppId = Paths.get("steam_appid.txt");
-            if(!Files.exists(steamAppId)) {
-                InputStream src = ClientLauncher.class.getResourceAsStream("/steam_appid.txt");
-                Files.copy(src,steamAppId,StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch(IOException e) {
-            System.out.println("Unable to write steam appid: "+e.getMessage());
-            e.printStackTrace();
-        }*/
+        Path steamAppId = Paths.get("steam_appid.txt");
+        FileUtil.extractFile(WUForge.class,steamAppId,"/steam_appid.txt",false);
     }
 
     private void extractCredits() {
@@ -123,8 +113,8 @@ public class WUForge {
                 return;
             }
         }
-        Path file = FileUtil.extractFile(WurmClientBase.class,htmlDir,"html/credits_wu.html",false);
-        FileUtil.extractFile(WurmClientBase.class,htmlDir,"html/unlimited.png",false);
+        Path file = FileUtil.extractFile(WurmClientBase.class,htmlDir.resolve("credits_wu.html"),"html/credits_wu.html",false);
+        FileUtil.extractFile(WurmClientBase.class,htmlDir.resolve("unlimited.png"),"html/unlimited.png",false);
         if(file!=null) {
             try {
                 creditsURL = file.toUri().toURL().toString();

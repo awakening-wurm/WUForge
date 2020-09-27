@@ -3,7 +3,7 @@ package net.wurmunlimited.forge.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,13 +36,21 @@ public class FileUtil {
         return OS.contains("nix") || OS.contains("nux") || OS.contains("aix");
     }
 
+    public static String readTextFile(Path file) {
+        try {
+            String text = new String(Files.readAllBytes(file),StandardCharsets.UTF_8);
+            return text;
+        } catch(IOException e) {}
+        return null;
+    }
+
     /** Write text in UTF-8 format to a file.
      *
      * @param file
      * @param text
      */
     public static void writeTextFile(Path file,String text) {
-        writeFile(file,text.getBytes(Charset.forName("UTF-8")));
+        writeFile(file,text.getBytes(StandardCharsets.UTF_8));
     }
 
     /** Write byte data to a file.

@@ -34,7 +34,13 @@ public class WUForgeInstaller {
         Path playerFilesDir;
 
         void init() {
-            wurmLauncher = clientDir.resolve("WurmLauncher");
+            if(FileUtil.isWindows()) {
+                wurmLauncher = clientDir.resolve("WurmLauncher.exe");
+                libsteamApi = clientDir.resolve("libsteam_api.dll");
+            } else {
+                wurmLauncher = clientDir.resolve("WurmLauncher");
+                libsteamApi = clientDir.resolve("libsteam_api.so");
+            }
             clientJar = clientDir.resolve("client.jar");
             commonJar = clientDir.resolve("common.jar");
             launchConfig = clientDir.resolve("LaunchConfig.ini");

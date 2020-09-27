@@ -2,7 +2,6 @@ package net.wurmunlimited.forge;
 
 import net.wurmunlimited.forge.util.FileUtil;
 import net.wurmunlimited.forge.util.HttpClient;
-import net.wurmunlimited.forge.util.PopupUtil;
 
 import javax.swing.*;
 import java.io.File;
@@ -11,9 +10,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static net.wurmunlimited.forge.interfaces.ForgeConstants.BASE_URL;
+import static net.wurmunlimited.forge.interfaces.ForgeConstants.VERSION;
 
 public class WUForgeInstaller {
 
@@ -24,10 +25,10 @@ public class WUForgeInstaller {
 
     class WurmFiles {
         Path wurmLauncher;
+        Path libsteamApi;
         Path clientJar;
         Path commonJar;
         Path launchConfig;
-        Path libsteamApi;
         Path libDir;
         Path nativeLibsDir;
         Path packsDir;
@@ -44,7 +45,6 @@ public class WUForgeInstaller {
             clientJar = clientDir.resolve("client.jar");
             commonJar = clientDir.resolve("common.jar");
             launchConfig = clientDir.resolve("LaunchConfig.ini");
-            libsteamApi = clientDir.resolve("libsteam_api.so");
             libDir = clientDir.resolve("lib");
             nativeLibsDir = clientDir.resolve("nativelibs");
             packsDir = clientDir.resolve("packs");
@@ -53,10 +53,10 @@ public class WUForgeInstaller {
 
         boolean isInstalled() {
             return Files.exists(wurmLauncher) && Files.isRegularFile(wurmLauncher) &&
+                   Files.exists(libsteamApi) && Files.isRegularFile(libsteamApi) &&
                    Files.exists(clientJar) && Files.isRegularFile(clientJar) &&
                    Files.exists(commonJar) && Files.isRegularFile(commonJar) &&
                    Files.exists(launchConfig) && Files.isRegularFile(launchConfig) &&
-                   Files.exists(libsteamApi) && Files.isRegularFile(libsteamApi) &&
                    Files.exists(libDir) && Files.isDirectory(libDir) &&
                    Files.exists(nativeLibsDir) && Files.isDirectory(nativeLibsDir) &&
                    Files.exists(packsDir) && Files.isDirectory(packsDir) &&
@@ -164,9 +164,6 @@ public class WUForgeInstaller {
             return false;
         }
 
-        void writeProperties() {
-        }
-
         boolean createDirectories() {
             try {
                 Path[] dirs = {
@@ -181,17 +178,29 @@ public class WUForgeInstaller {
             return false;
         }
 
-        boolean installForge() {
+        boolean installForge(ProgressMonitor progressMonitor) {
+            if(progressMonitor!=null) progressMonitor.setProgress(10);
             try {
+                log("Moving client.jar to forge.client.jar...");
                 Files.move(forgeClient,wurmClient,REPLACE_EXISTING);
             } catch(IOException e) {
                 return false;
             }
+            if(progressMonitor!=null) progressMonitor.setProgress(20);
             boolean ret = true;
+            log("Downloading and installing client.jar ...");
             ret = HttpClient.download(BASE_URL+"download/client.jar",forgeClient) && ret;
+            if(progressMonitor!=null) progressMonitor.setProgress(50);
+            log("Downloading and installing javassist.jar ...");
             ret = HttpClient.download(BASE_URL+"download/javassist.jar",javassist) && ret;
+            if(progressMonitor!=null) progressMonitor.setProgress(80);
+            log("Installing configurations files...");
+            pause(200);
             ret = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null && ret;
+            if(progressMonitor!=null) progressMonitor.setProgress(90);
             ret = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null && ret;
+            if(progressMonitor!=null) progressMonitor.setProgress(100);
+            pause(200);
             return ret;
         }
 
@@ -222,6 +231,7 @@ public class WUForgeInstaller {
         }
     }
 
+    InstallerWindow window = null;
     Path clientDir = null;
     WurmFiles wurmFiles = new WurmFiles();
     AgoFiles agoFiles = new AgoFiles();
@@ -231,13 +241,31 @@ public class WUForgeInstaller {
     }
 
     void install() {
+        window = new InstallerWindow();
+        log("Wurm Unlimited forge installer v"+VERSION);
+        pause(750);
+
+        if(!confirmBoxYesNo("This will install the Wurm Unlimited Forge, which is an extension based\n"+
+                            "on Ago's mod loader. For more information about this extension, please\n"+
+                            "consult the web page at: https://forge.wurm-unlimited.net\n\n"+
+                            "Would you like to proceed with the installation?")) {
+            log("Exiting");
+            window.close();
+            return;
+        }
+
+        log("Checking for directory where Wurm is installed...");
+
         clientDir = getWurmLauncherDirectory();
         if(clientDir==null) {
-            PopupUtil.errorMessage("Could not find the installation directory\n"+
-                                   "of the Wurm Unlimited client.\n"+
-                                   "\n"+
-                                   "Please contact support for help.");
+            log("Couldn't find Wurm.");
+            errorMessage("Could not find the installation directory\n"+
+                         "of the Wurm Unlimited client.\n\n"+
+                         "Please contact support for help.");
+            return;
         }
+        log("Found Wurm Unlimited at: "+clientDir.toAbsolutePath());
+        log("Initializing...");
         wurmFiles.init();
         agoFiles.init();
         forgeFiles.init();
@@ -245,96 +273,216 @@ public class WUForgeInstaller {
         boolean agoIsInstalled = agoFiles.isInstalled();
         boolean forgeIsInstalled = forgeFiles.isInstalled();
         if(!wuIsInstalled || (agoIsInstalled && forgeIsInstalled)) {
-            PopupUtil.errorMessage("The Wurm Unlimited client's file structure is\n"+
-                                   "corrupted. Please uninstall and remove all\n"+
-                                   "files and directories except PlayerFiles, and\n"+
-                                   "re-install Wurm Unlimited, then run WUForge\n"
-                                   +"again.");
-        }
-        if(forgeIsInstalled) {
-            if(PopupUtil.confirmBoxYesNoCancel("Wurm Unlimited Forge is already installed.\n"+
-                                               "\n"+
-                                               "Would you like to uninstall Wurm Unlimited Forge? This will\n"+
-                                               "remove all installed mods including configurations and restore\n"+
-                                               "files to original state.")) {
-                forgeFiles.uninstall();
-            }
-            System.exit(0);
-        }
-        if(agoIsInstalled) {
-            agoFiles.uninstall();
-        }
-        forgeFiles.writeProperties();
-        if(!forgeFiles.createDirectories()) {
-            PopupUtil.errorMessage("Could not create Wurm Unlimited Forge directories.\n"+
-                                   "Please make sure you have the right permissions set,\n"+
-                                   "if unsure contact support.");
-        }
-        if(agoIsInstalled) {
-            forgeFiles.installAgoMods(agoFiles.modsDir);
-            agoFiles.uninstallMods();
+            if(!wuIsInstalled) log("Wurm Unlimited client has a corrupted file structure.");
+            else log("Ago's mod loader and WU Forge seems to be installed in parallel, this will cause conflicts.");
+            errorMessage("The Wurm Unlimited client's file structure is\n"+
+                         "corrupted. Please uninstall and remove all\n"+
+                         "files and directories except PlayerFiles, and\n"+
+                         "re-install Wurm Unlimited, then run WUForge\n"
+                         +"again.");
+            return;
         }
 
-        forgeFiles.installForge();
+        if(forgeIsInstalled) {
+            log("Wurm Unlimited Forge is already installed.");
+            if(confirmBoxYesNoCancel("Wurm Unlimited Forge is already installed.\n\n"+
+                                     "Would you like to uninstall Wurm Unlimited Forge? This will\n"+
+                                     "remove all installed mods including configurations and restore\n"+
+                                     "files to original state.")) {
+                if(!forgeFiles.uninstall()) {
+                    errorMessage("Could not remove WU Forge, please contact support.");
+                    return;
+                }
+                log("Removing Forge was successful.");
+                messageBox("Wurm Unlimited Forge has been completely removed.");
+            }
+            window.close();
+            return;
+        }
+
+        log("Wurm Unlimited client is installed, and WU Forge can be installed.");
+        if(agoIsInstalled) {
+            log("Ago's mod loader is installed, uninstalling...");
+            if(!agoFiles.uninstall()) {
+                errorMessage("Could not remove Ago's mod loader, please contact support.");
+                return;
+            }
+            log("Ago's mod loader was removed.");
+        }
+
+        log("Creating WU Forge directories...");
+        if(!forgeFiles.createDirectories()) {
+            errorMessage("Could not create Wurm Unlimited Forge directories.\n"+
+                         "Please make sure you have the right permissions set,\n"+
+                         "if unsure contact support.");
+            return;
+        }
+
+        log("Directories created.");
+        if(agoIsInstalled) {
+            log("Exporting mods to WU Forge...");
+            forgeFiles.installAgoMods(agoFiles.modsDir);
+            log("Finishing uninstalling Ago's mod loader...");
+            if(!agoFiles.uninstallMods()) {
+                errorMessage("Could not remove Ago's mod loader, please contact support.");
+                return;
+            }
+            log("Exporting mods to WU Forge worked.");
+        }
+
+        log("Installing WU Forge files...");
+        ProgressMonitor progressMonitor = new ProgressMonitor(window.frame,"Installing...","",0,100);
+        boolean ret = forgeFiles.installForge(progressMonitor);
+        progressMonitor.close();
+        if(!ret) {
+            errorMessage("Something went wrong with the installation.\n\n"+
+                         "Please try again later, and otherwise contact\n"+
+                         "support for assistance.");
+            return;
+        }
+        log("Finished.");
+        messageBox("Wurm Unlimited Forge has been installed.\n\n"+
+                   "To uninstall run this application again.");
+        window.close();
     }
 
     Path getWurmLauncherDirectory() {
-        Path directory;
+        Path directory = null;
+        Path steam = null;
         String sep = File.separator;
         Path wuDir = Paths.get("steamapps"+sep+"common"+sep+"Wurm Unlimited"+sep+"WurmLauncher");
+        log("Looking for default installation directory...");
+        String homeDir = System.getProperty("user.home");
         if(FileUtil.isWindows()) {
-            directory = Paths.get("C:\\Program Files (x86)\\Steam").resolve(wuDir);
+            steam = Paths.get("C:\\Program Files (x86)\\Steam");
+            if(!Files.exists(steam)) {
+                steam = Paths.get("D:\\Program Files (x86)\\Steam");
+            }
+            directory = steam.resolve(wuDir);
             if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
             directory = Paths.get("D:\\Program Files (x86)\\Steam").resolve(wuDir);
             if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
         } else if(FileUtil.isMacintosh()) {
-            String homeDir = System.getProperty("user.home");
-            directory = Paths.get(homeDir+"/Library/Application Support/Steam").resolve(wuDir);
-            if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
+            steam = Paths.get(homeDir+"/Library/Application Support/Steam");
         } else if(FileUtil.isLinux()) {
-            String homeDir = System.getProperty("user.home");
-            directory = Paths.get(homeDir+"/.steam/steam").resolve(wuDir);
-            if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
-            directory = Paths.get(homeDir+"/.local/share/Steam").resolve(wuDir);
-            if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
+            steam = Paths.get(homeDir+"/.steam/steam");
+            if(!Files.exists(steam)) {
+                steam = Paths.get(homeDir+"/.local/share/Steam").resolve(wuDir);
+            }
         }
+        if(steam!=null && Files.exists(steam)) {
+            directory = steam.resolve(wuDir);
+            if(Files.exists(directory)) return directory;
+            directory = findWurmLauncherDirectoryFromVDF(steam,wuDir);
+            if(Files.exists(directory)) return directory;
+        }
+        log("No Wurm installation was found in the default locations, choose the installation directory.");
         JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new File("."));
+        chooser.setCurrentDirectory(new File(homeDir));
         chooser.setDialogTitle("Wurm Unlimited Client Directory");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
         if(chooser.showOpenDialog(null)==JFileChooser.APPROVE_OPTION) {
             directory = chooser.getSelectedFile().toPath();
-            System.out.println("Got path: "+directory.toAbsolutePath());
+            log("Got path: "+directory.toAbsolutePath());
             if(Files.exists(directory) && Files.isDirectory(directory)) {
                 String name = directory.getFileName().toString();
                 if(name.equals("WurmLauncher")) return directory;
-                System.out.println("Directory name: "+name);
+                log("Directory name: "+name);
                 if(name.equals("Wurm Unlimited")) {
                     directory = directory.resolve("WurmLauncher");
-                    System.out.println("Checking if "+directory.toAbsolutePath()+" is a directory...");
+                    log("Checking if "+directory.toAbsolutePath()+" is a directory...");
                     if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
                 } else if(name.equals("common")) {
                     directory = directory.resolve("Wurm Unlimited"+sep+"WurmLauncher");
-                    System.out.println("Checking if "+directory.toAbsolutePath()+" is a directory...");
+                    log("Checking if "+directory.toAbsolutePath()+" is a directory...");
                     if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
                 } else if(name.equals("steamapps")) {
                     directory = directory.resolve("common"+sep+"Wurm Unlimited"+sep+"WurmLauncher");
-                    System.out.println("Checking if "+directory.toAbsolutePath()+" is a directory...");
+                    log("Checking if "+directory.toAbsolutePath()+" is a directory...");
                     if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
                 } else if(name.equalsIgnoreCase("steam")) {
                     directory = directory.resolve(wuDir);
-                    System.out.println("Checking if "+directory.toAbsolutePath()+" is a directory...");
+                    log("Checking if "+directory.toAbsolutePath()+" is a directory...");
                     if(Files.exists(directory) && Files.isDirectory(directory)) return directory;
                 } else {
                     Path parent = directory.getParent();
-                    System.out.println("Testing if parent directory is right: "+parent.toAbsolutePath());
+                    log("Testing if parent directory is right: "+parent.toAbsolutePath());
                     if(parent.getFileName().toString().equals("WurmLauncher")) return parent;
                 }
             }
         } else {
+            if(window!=null) window.close();
             System.exit(0);
         }
         return null;
+    }
+
+    private Path findWurmLauncherDirectoryFromVDF(Path steam,Path wuDir) {
+        Path libraryfolders = steam.resolve("steamapps").resolve("libraryfolders.vdf");
+        if(Files.exists(libraryfolders)) {
+            String file = FileUtil.readTextFile(libraryfolders);
+            VDF vdf = new VDF();
+            try {
+                VDF.VDFObject vdfObject = vdf.parse(file);
+                VDF.VDFObject o1 = vdfObject.getValue("LibraryFolders");
+                if(o1!=null) {
+                    for(Map.Entry<String,VDF.VDFObject> entry : o1.values.entrySet()) {
+                        String key = entry.getKey();
+                        VDF.VDFObject o2 = entry.getValue();
+                        try {
+                            int n = Integer.parseInt(key);
+                            Path dir = Paths.get(o2.value);
+                            if(Files.exists(dir)) {
+                                dir = dir.resolve(wuDir);
+                                if(Files.exists(dir)) return dir;
+                            }
+                        } catch(NumberFormatException e) {}
+                    }
+                }
+            } catch(VDF.VDFException e) {}
+        }
+        return null;
+    }
+
+    private void log(String text) {
+        if(window!=null) window.log(text);
+    }
+
+    public static void messageBox(String message) {
+        messageBox(message,JOptionPane.PLAIN_MESSAGE,0);
+    }
+
+    public static void errorMessage(String message) {
+        messageBox(message,JOptionPane.ERROR_MESSAGE,1);
+    }
+
+    public static void messageBox(String message,int messageType,int exitStatus) {
+        JOptionPane.showMessageDialog(null,message,"Wurm Unlimited Forge",messageType);
+    }
+
+    public static boolean confirmBoxOkCancel(String question) {
+        return confirmBox(question,JOptionPane.OK_CANCEL_OPTION);
+    }
+
+    public static boolean confirmBoxYesNo(String question) {
+        return confirmBox(question,JOptionPane.YES_NO_OPTION);
+    }
+
+    public static boolean confirmBoxYesNoCancel(String question) {
+        return confirmBox(question,JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
+    public static boolean confirmBox(String question,int optionType) {
+        int result = JOptionPane.showConfirmDialog(null,question,"Wurm Unlimited Forge",optionType);
+        return result==JOptionPane.OK_OPTION || result==JOptionPane.YES_OPTION;
+    }
+
+    public static void pause(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch(InterruptedException e) {
+            System.err.format("IOException: %s%n",e);
+        }
     }
 }

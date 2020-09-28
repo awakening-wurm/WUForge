@@ -4,6 +4,7 @@ import net.wurmunlimited.forge.util.FileUtil;
 import net.wurmunlimited.forge.util.HttpClient;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -178,28 +179,43 @@ public class WUForgeInstaller {
             return false;
         }
 
-        boolean installForge(ProgressMonitor progressMonitor) {
-            if(progressMonitor!=null) progressMonitor.setProgress(10);
+        boolean installForge(final ProgressMonitor progressMonitor) {
+            final Point range = new Point(0,100);
+            if(progressMonitor!=null) {
+                new Thread(() -> {
+                    while(range.x<100) {
+                        if(range.x<range.y) {
+                            progressMonitor.setProgress(++range.x);
+                        }
+                        try {
+                            Thread.sleep(200L);
+                        } catch(InterruptedException e) {}
+                    }
+                }).start();
+            }
+            range.y = 20;
             try {
                 log("Moving client.jar to forge.client.jar...");
                 Files.move(forgeClient,wurmClient,REPLACE_EXISTING);
             } catch(IOException e) {
                 return false;
             }
-            if(progressMonitor!=null) progressMonitor.setProgress(20);
+            range.x = range.y;
+            range.y = 50;
             boolean ret = true;
             log("Downloading and installing client.jar ...");
             ret = HttpClient.download(BASE_URL+"download/client.jar",forgeClient) && ret;
-            if(progressMonitor!=null) progressMonitor.setProgress(50);
+            range.x = range.y;
+            range.y = 80;
             log("Downloading and installing javassist.jar ...");
             ret = HttpClient.download(BASE_URL+"download/javassist.jar",javassist) && ret;
-            if(progressMonitor!=null) progressMonitor.setProgress(80);
+            range.x = range.y;
+            range.y = 100;
             log("Installing configurations files...");
             pause(200);
             ret = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null && ret;
-            if(progressMonitor!=null) progressMonitor.setProgress(90);
             ret = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null && ret;
-            if(progressMonitor!=null) progressMonitor.setProgress(100);
+            range.x = 100;
             pause(200);
             return ret;
         }
@@ -242,19 +258,19 @@ public class WUForgeInstaller {
 
     void install() {
         window = new InstallerWindow();
-        log("Wurm Unlimited forge installer v"+VERSION);
+        log("Wurm Unlimited Forge installer v"+VERSION);
         pause(750);
 
         if(!confirmBoxYesNo("This will install the Wurm Unlimited Forge, which is an extension based\n"+
-                            "on Ago's mod loader. For more information about this extension, please\n"+
-                            "consult the web page at: https://forge.wurm-unlimited.net\n\n"+
+                            "on Ago's Client Mod Launcher. For more information about this extension,\n"+
+                            "please visit the web page at: https://forge.wurm-unlimited.net\n\n"+
                             "Would you like to proceed with the installation?")) {
             log("Exiting");
             window.close();
             return;
         }
 
-        log("Checking for directory where Wurm is installed...");
+        log("Checking for directory where Wurm Unlimited is installed...");
 
         clientDir = getWurmLauncherDirectory();
         if(clientDir==null) {
@@ -273,13 +289,15 @@ public class WUForgeInstaller {
         boolean agoIsInstalled = agoFiles.isInstalled();
         boolean forgeIsInstalled = forgeFiles.isInstalled();
         if(!wuIsInstalled || (agoIsInstalled && forgeIsInstalled)) {
-            if(!wuIsInstalled) log("Wurm Unlimited client has a corrupted file structure.");
+            if(!wuIsInstalled) log("The Client has a corrupted file structure. Please uninstall the client "+
+                                   "application and remove all files and directories except PlayerFiles, and then "+
+                                   "reinstall it again, then run the WU Forge installer again.");
             else log("Ago's mod loader and WU Forge seems to be installed in parallel, this will cause conflicts.");
             errorMessage("The Wurm Unlimited client's file structure is\n"+
                          "corrupted. Please uninstall and remove all\n"+
                          "files and directories except PlayerFiles, and\n"+
-                         "re-install Wurm Unlimited, then run WUForge\n"
-                         +"again.");
+                         "reinstall Wurm Unlimited, then run the WU Forge\n"+
+                         "installer again.");
             return;
         }
 
@@ -302,19 +320,19 @@ public class WUForgeInstaller {
 
         log("Wurm Unlimited client is installed, and WU Forge can be installed.");
         if(agoIsInstalled) {
-            log("Ago's mod loader is installed, uninstalling...");
+            log("Ago's Client Mod Launcher is installed, uninstalling...");
             if(!agoFiles.uninstall()) {
-                errorMessage("Could not remove Ago's mod loader, please contact support.");
+                errorMessage("Could not remove Ago's Client Mod Launcher, please contact support.");
                 return;
             }
-            log("Ago's mod loader was removed.");
+            log("Ago's Client Mod Launcher was removed.");
         }
 
         log("Creating WU Forge directories...");
         if(!forgeFiles.createDirectories()) {
             errorMessage("Could not create Wurm Unlimited Forge directories.\n"+
-                         "Please make sure you have the right permissions set,\n"+
-                         "if unsure contact support.");
+                         "Please make sure you have the write permissions\n"+
+                         "set, if unsure contact support.");
             return;
         }
 
@@ -322,9 +340,9 @@ public class WUForgeInstaller {
         if(agoIsInstalled) {
             log("Exporting mods to WU Forge...");
             forgeFiles.installAgoMods(agoFiles.modsDir);
-            log("Finishing uninstalling Ago's mod loader...");
+            log("Finishing uninstalling Ago's Client Mod Launcher...");
             if(!agoFiles.uninstallMods()) {
-                errorMessage("Could not remove Ago's mod loader, please contact support.");
+                errorMessage("Could not remove Ago's Client Mod Launcher, please contact support.");
                 return;
             }
             log("Exporting mods to WU Forge worked.");
@@ -370,13 +388,18 @@ public class WUForgeInstaller {
                 steam = Paths.get(homeDir+"/.local/share/Steam").resolve(wuDir);
             }
         }
-        if(steam!=null && Files.exists(steam)) {
+        /*if(steam!=null && Files.exists(steam)) {
+            log("Found Steam directory at: "+steam.toAbsolutePath().toString());
             directory = steam.resolve(wuDir);
             if(Files.exists(directory)) return directory;
+            log("Wurm wasn't installed in the default directory, looking into Steam configurations...");
             directory = findWurmLauncherDirectoryFromVDF(steam,wuDir);
             if(Files.exists(directory)) return directory;
-        }
-        log("No Wurm installation was found in the default locations, choose the installation directory.");
+        }*/
+        log("No Wurm installation was found in the default locations or Steam configurations, "+
+            "choose the installation directory instead.");
+        log("If you didn't install Wurm, and don't know where it is located, please ask the person "+
+            "who did it for you.");
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File(homeDir));
         chooser.setDialogTitle("Wurm Unlimited Client Directory");

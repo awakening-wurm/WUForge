@@ -75,7 +75,7 @@ public class ModTraits {
         1<<COLOR_GOLD|
         1<<COLOR_BROWN;
 
-    private static final Logger LOGGER = Logger.getLogger(Traits.class.getName());
+    private static final Logger logger = Logger.getLogger(Traits.class.getName());
 
     private static Method creatureGetTraits;
 
@@ -194,7 +194,7 @@ public class ModTraits {
                     }
                 }
             } else {
-                LOGGER.log(Level.WARNING,"Failed to select a trait from a map of size "+newSet.size());
+                logger.log(Level.WARNING,"Failed to select a trait from a map of size "+newSet.size());
             }
         }
         if(!isThisAPvpServer) {
@@ -212,7 +212,7 @@ public class ModTraits {
             chance += entry.getValue();
         }
         if(chance==0 || chance<0) {
-            LOGGER.log(Level.INFO,"Trait rand="+chance+" should not be <=0! Size of map is "+traitMap.size());
+            logger.info("Trait rand="+chance+" should not be <=0! Size of map is "+traitMap.size());
             return -1;
         }
         final int selectedTrait = rand.nextInt(chance);

@@ -5,11 +5,9 @@ import javassist.Loader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.logging.LogManager;
 
 public class ClientLauncher {
@@ -48,10 +46,6 @@ public class ClientLauncher {
                System.getProperty("java.util.logging.config.class")==null) {
                 // Use a provider logging.properties file
                 Path loggingPropertiesFile = Paths.get("forge/logging.properties");
-                if(!Files.exists(loggingPropertiesFile)) {
-                    InputStream src = ClientLauncher.class.getResourceAsStream("/logging.properties");
-                    Files.copy(src,loggingPropertiesFile,StandardCopyOption.REPLACE_EXISTING);
-                }
                 if(Files.isRegularFile(loggingPropertiesFile)) {
                     System.setProperty("java.util.logging.config.file",loggingPropertiesFile.toString());
                     LogManager manager = LogManager.getLogManager();

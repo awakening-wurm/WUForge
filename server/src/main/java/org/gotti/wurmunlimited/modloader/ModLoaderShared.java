@@ -197,7 +197,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
         try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+jarFile.toUri()),new HashMap<>())) {
             Path propsFile = fs.getPath("/META-INF/"+ModLoaderShared.class.getPackage().getName()+"/"+modName+".properties");
             if(Files.exists(propsFile)) {
-                logger.log(Level.INFO,"Reading "+jarFile.toString()+"!"+propsFile.toString());
+                logger.info("Reading "+jarFile.toString()+"!"+propsFile.toString());
                 try(InputStream inputStream = Files.newInputStream(propsFile)) {
                     Properties properties = new Properties();
                     properties.load(inputStream);
@@ -222,7 +222,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
         try(FileSystem fs = FileSystems.newFileSystem(URI.create("jar:"+jarFile.toUri()),new HashMap<>())) {
             Path configTemplate = fs.getPath("/META-INF/"+ModLoaderShared.class.getPackage().getName()+"/"+modName+".config");
             if(Files.exists(configTemplate)) {
-                logger.log(Level.INFO,"Copying "+jarFile+"!"+configTemplate+" to "+configFile);
+                logger.info("Copying "+jarFile+"!"+configTemplate+" to "+configFile);
                 Files.copy(configTemplate,configFile);
             }
         } catch(IOException e) {
@@ -253,14 +253,14 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
             }
         }
         if(modInfo!=null) {
-            logger.log(Level.INFO,"Reading "+modInfo.toString());
+            logger.info("Reading "+modInfo.toString());
             try(InputStream inputStream = Files.newInputStream(modInfo)) {
                 properties.load(inputStream);
             }
         }
         if(Files.exists(configFile)) {
             try(InputStream inputStream = Files.newInputStream(configFile)) {
-                logger.log(Level.INFO,"Reading "+configFile.toString());
+                logger.info("Reading "+configFile.toString());
                 properties.load(inputStream);
             }
         }

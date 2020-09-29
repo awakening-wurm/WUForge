@@ -125,14 +125,14 @@ public class IdFactory {
 
     public static int getIdFor(String identifier,IdType idType) {
         int id = getInstance().getId(identifier,idType);
-        logger.log(Level.INFO,String.format("Using id %d for %s %s",id,idType.name().toLowerCase(Locale.ROOT),identifier));
+        logger.info(String.format("Using id %d for %s %s",id,idType.name().toLowerCase(Locale.ROOT),identifier));
         return id;
     }
 
     public static int getExistingIdFor(String identifier,IdType idType) {
         int id = getInstance().getExistingId(identifier,idType);
         if(id!=-10)
-            logger.log(Level.INFO,String.format("Using id %d for %s %s",id,idType.name().toLowerCase(Locale.ROOT),identifier));
+            logger.info(String.format("Using id %d for %s %s",id,idType.name().toLowerCase(Locale.ROOT),identifier));
         return id;
     }
 

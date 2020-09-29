@@ -13,7 +13,6 @@ import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -107,7 +106,7 @@ class ModInstanceBuilder<T> {
      */
     private ClassLoader createClassLoader(String classpath,Loader loader,Boolean shared,ClassLoader... dependencies) throws MalformedURLException, NotFoundException {
         List<Path> pathEntries = getClassLoaderEntries(classpath);
-        logger.log(Level.INFO,"Classpath: "+pathEntries.toString());
+        logger.info("Classpath: "+pathEntries.toString());
         if(shared) {
             final HookManager hookManager = HookManager.getInstance();
             for(Path path : pathEntries) {

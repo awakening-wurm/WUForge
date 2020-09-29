@@ -4,7 +4,6 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 import net.wurmunlimited.forge.config.ForgeConfig;
-import org.gotti.wurmunlimited.modloader.ModInstanceBuilder;
 import org.gotti.wurmunlimited.modloader.classhooks.HookException;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 import org.gotti.wurmunlimited.modloader.dependency.DependencyResolver;
@@ -158,10 +157,12 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
             for(Path modJar : directoryStream) {
                 String fileName = modJar.getFileName().toString();
                 String modName = fileName.substring(0,fileName.length()-4);
-                Path modInfo = config.getModsProfileDir().resolve(modName+".properties");
-                if(!Files.exists(modInfo)) modInfo = null;
-                ModInfo mod = loadModFromInfo(modName,modInfo,modJar);
-                unorderedMods.add(mod);
+                Path modConfig = config.getModsProfileDir().resolve(modName+".properties");
+                logger.info("discoverMods: "+modJar.toAbsolutePath().toString()+" ["+fileName+", "+modName+", "+modConfig.toAbsolutePath().toString()+"]");
+                if(!Files.exists(modConfig)) modConfig = null;
+                ModInfo modInfo = loadModFromInfo(modName,modConfig,modJar);
+                logger.info("discoverMods: ModInfo("+modInfo.getName()+"=>"+modInfo.getProperties().getProperty("classname")+")");
+                unorderedMods.add(modInfo);
             }
         }
         return unorderedMods;
@@ -171,28 +172,28 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
      * Load mod properties from .properties and .config files
      *
      * @param modName Modname
-     * @param modInfo properties file
+     * @param modConfig properties file
      * @param jarFile jar file
      * @return Mod properties
      * @throws IOException
      */
-    private ModInfo loadModFromInfo(String modName,Path modInfo,Path jarFile) throws IOException {
+    private ModInfo loadModFromInfo(String modName,Path modConfig,Path jarFile) throws IOException {
         ForgeConfig config = ForgeConfig.getInstance();
         Path configFile = config.getModsProfileDir().resolve(modName+".config");
         Properties properties = new Properties();
         properties.put("forgeModsPath",config.getModsDir());
-        if(modInfo==null || !Files.exists(modInfo))
+        if(modConfig==null || !Files.exists(modConfig))
             properties.put("depend.ondemand","true");
         loadPropertiesFromJar(properties,modName,jarFile,configFile);
-        if(modInfo!=null) {
-            logger.log(Level.INFO,"Reading "+modInfo.toString());
-            try(InputStream inputStream = Files.newInputStream(modInfo)) {
+        if(modConfig!=null) {
+            logger.info("Reading "+modConfig.toString());
+            try(InputStream inputStream = Files.newInputStream(modConfig)) {
                 properties.load(inputStream);
             }
         }
         if(Files.exists(configFile)) {
             try(InputStream inputStream = Files.newInputStream(configFile)) {
-                logger.log(Level.INFO,"Reading "+configFile.toString());
+                logger.info("Reading "+configFile.toString());
                 properties.load(inputStream);
             }
         }
@@ -220,7 +221,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
                 }
             }
             if(propsFile!=null) {
-                logger.log(Level.INFO,"Reading "+jarFile.toString()+"!"+propsFile.toString());
+                logger.info("Reading "+jarFile.toString()+"!"+propsFile.toString());
                 try(InputStream inputStream = Files.newInputStream(propsFile)) {
                     properties.load(inputStream);
                 }
@@ -235,7 +236,7 @@ public abstract class ModLoaderShared<T extends Versioned> implements Versioned 
                     }
                 }
                 if(configTemplate!=null) {
-                    logger.log(Level.INFO,"Copying "+jarFile+"!"+configTemplate+" to "+configFile);
+                    logger.info("Copying "+jarFile+"!"+configTemplate+" to "+configFile);
                     Files.copy(configTemplate,configFile);
                 }
             }

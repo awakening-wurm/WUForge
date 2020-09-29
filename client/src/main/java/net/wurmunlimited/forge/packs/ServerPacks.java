@@ -56,7 +56,7 @@ public class ServerPacks {
                     while(n-->0) {
                         String packId = reader.readUTF();
                         String uri = reader.readUTF();
-                        logger.log(Level.INFO,String.format("Got server pack %s (%s)",packId,uri));
+                        logger.info(String.format("Got server pack %s (%s)",packId,uri));
                         installServerPack(packId,uri);
                     }
                     refreshModels();
@@ -127,7 +127,7 @@ public class ServerPacks {
         File file = Paths.get("packs",getPackName(packId)).toFile();
         boolean prepend = Boolean.parseBoolean(splitQuery(packUrl).getOrDefault("prepend",emptyList()).stream().map(v -> v==null? "true" : v).reduce((a,b) -> b).orElse("false"));
         if(ModPacks.addPack(file,prepend? OPTIONS_PREPEND : OPTIONS_DEFAULT)) {
-            logger.log(Level.INFO,"Added server pack "+packId);
+            logger.info("Added server pack "+packId);
         }
     }
 

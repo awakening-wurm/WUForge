@@ -38,7 +38,7 @@ public class ClientLogger {
                 // Avoid logging log messages as console messages again
                 Boolean b = inLogHandler.get();
                 if(b==null || !b) {
-                    Logger.getLogger(CONSOLE_LOGGER).log(Level.INFO,message);
+                    Logger.getLogger(CONSOLE_LOGGER).info(message);
                 }
             }
 

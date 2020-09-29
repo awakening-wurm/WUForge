@@ -1,18 +1,16 @@
 package com.wurmonline.server.intra;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.wurmonline.communication.SocketConnection;
+import com.wurmonline.server.ServerEntry;
+import com.wurmonline.server.Servers;
 import org.gotti.wurmunlimited.modcomm.intra.BBHelper;
 import org.gotti.wurmunlimited.modcomm.intra.IntraRequest;
 import org.gotti.wurmunlimited.modcomm.intra.ModIntraServer;
 import org.gotti.wurmunlimited.modcomm.intra.ModIntraServerConstants;
 
-import com.wurmonline.communication.SocketConnection;
-import com.wurmonline.server.ServerEntry;
-import com.wurmonline.server.Servers;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 
 /**
  * ModIntraServer message type
@@ -47,6 +45,7 @@ public final class ModIntraServerMessage extends IntraCommand implements IntraSe
 	/**
 	 * Called from Server.poll
 	 */
+	@Override
 	public boolean poll() {
 		if (this.server.id == Servers.localServer.id) {
 			return true;
@@ -56,11 +55,11 @@ public final class ModIntraServerMessage extends IntraCommand implements IntraSe
 			try {
 				this.client = new IntraClient(server.INTRASERVERADDRESS, Integer.parseInt(server.INTRASERVERPORT), this);
 				this.client.login(this.server.INTRASERVERPASSWORD, true);
-				ModIntraServerMessage.logger.log(Level.INFO, "connecting to " + this.server.id);
+				ModIntraServerMessage.logger.info( "connecting to " + this.server.id);
 			} catch (IOException iox) {
 				this.client.disconnect("Failed.");
 				this.client = null;
-				ModIntraServerMessage.logger.log(Level.INFO, "Failed");
+				ModIntraServerMessage.logger.info( "Failed");
 				this.done = true;
 			}
 		}
@@ -105,26 +104,32 @@ public final class ModIntraServerMessage extends IntraCommand implements IntraSe
 		return this.done;
 	}
 
+	@Override
 	public void commandExecuted(final IntraClient aClient) {
 		this.done = true;
 	}
 
+	@Override
 	public void commandFailed(final IntraClient aClient) {
 		this.done = true;
 	}
 
+	@Override
 	public void dataReceived(final IntraClient aClient) {
 		this.done = true;
 	}
 
+	@Override
 	public void reschedule(final IntraClient aClient) {
 		this.done = true;
 	}
 
+	@Override
 	public void remove(final IntraClient aClient) {
 		this.done = true;
 	}
 
+	@Override
 	public void receivingData(final ByteBuffer buffer) {
 		this.done = this.done || handler.handleReply(buffer);
 	}

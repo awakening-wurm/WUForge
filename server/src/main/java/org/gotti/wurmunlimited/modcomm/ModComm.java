@@ -116,7 +116,7 @@ public class ModComm {
 
     static void logInfo(String msg) {
         if(logger!=null)
-            logger.log(Level.INFO,msg);
+            logger.info(msg);
     }
 
 }

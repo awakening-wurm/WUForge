@@ -1,6 +1,5 @@
 package com.wurmonline.client.launcherfx;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -9,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class WurmMain {
@@ -39,20 +39,21 @@ public class WurmMain {
     }
 
     private static void initLogger() throws SecurityException, IOException {
-        //  Use externally configured loggers
-        if(System.getProperty("java.util.logging.config.file")!=null) {
-            return;
-        }
-        if(System.getProperty("java.util.logging.config.class")!=null) {
-            return;
-        }
-
-        // Use a provider logging.properties file
-        Path loggingPropertiesFile = Paths.get("logging.properties");
-        if(Files.isRegularFile(loggingPropertiesFile)) {
-            System.setProperty("java.util.logging.config.file",loggingPropertiesFile.toString());
-            return;
+        try {
+            //  Use externally configured loggers
+            if(System.getProperty("java.util.logging.config.file")==null &&
+               System.getProperty("java.util.logging.config.class")==null) {
+                // Use a provider logging.properties file
+                Path loggingPropertiesFile = Paths.get("forge/logging.properties");
+                if(Files.isRegularFile(loggingPropertiesFile)) {
+                    System.setProperty("java.util.logging.config.file",loggingPropertiesFile.toString());
+                    LogManager manager = LogManager.getLogManager();
+                    manager.readConfiguration();
+                }
+            }
+        } catch(IOException e) {
+            System.out.println("Unable to init logging: "+e.getMessage());
+            e.printStackTrace();
         }
     }
-
 }

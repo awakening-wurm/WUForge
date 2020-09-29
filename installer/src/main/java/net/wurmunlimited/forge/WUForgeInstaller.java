@@ -118,34 +118,34 @@ public class WUForgeInstaller {
     }
 
     class ForgeFiles {
-        Path forgeProperties;
-        Path forgeClient;
-        Path wurmClient;
-        Path loggingProperties;
-        Path javassist;
         Path forgeDir;
         Path modsDir;
         Path profilesDir;
         Path profilesDefaultDir;
         Path modsLibDir;
+        Path forgeProperties;
+        Path forgeClient;
+        Path wurmClient;
+        Path javassist;
+        Path loggingProperties;
 
         void init() {
-            forgeProperties = clientDir.resolve("forge.properties");
-            forgeClient = clientDir.resolve("client.jar");
-            wurmClient = clientDir.resolve("forge.client.jar");
-            loggingProperties = clientDir.resolve("logging.properties");
-            javassist = clientDir.resolve("javassist.jar");
             forgeDir = clientDir.resolve("forge");
             modsDir = forgeDir.resolve("mods");
             profilesDir = modsDir.resolve("profiles");
             profilesDefaultDir = profilesDir.resolve("default");
             modsLibDir = modsDir.resolve("lib");
+            forgeProperties = clientDir.resolve("forge.properties");
+            forgeClient = clientDir.resolve("client.jar");
+            wurmClient = clientDir.resolve("forge.client.jar");
+            javassist = clientDir.resolve("javassist.jar");
+            loggingProperties = forgeDir.resolve("logging.properties");
         }
 
         boolean isInstalled() {
-            return Files.exists(forgeProperties) && Files.isRegularFile(forgeProperties) &&
-                   Files.exists(wurmClient) && Files.isRegularFile(wurmClient) &&
-                   Files.exists(forgeDir) && Files.isDirectory(forgeDir);
+            return Files.exists(forgeDir) && Files.isDirectory(forgeDir) &&
+                   Files.exists(forgeProperties) && Files.isRegularFile(forgeProperties) &&
+                   Files.exists(wurmClient) && Files.isRegularFile(wurmClient);
         }
 
         boolean uninstall() {

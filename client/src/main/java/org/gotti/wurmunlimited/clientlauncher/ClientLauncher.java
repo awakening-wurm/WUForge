@@ -34,7 +34,7 @@ public class ClientLauncher {
 
             Thread.currentThread().setContextClassLoader(loader);
 
-            loader.run("WUForge",args);
+            loader.run("net.wurmunlimited.forge.WUForge",args);
         } catch(Throwable e) {
             e.printStackTrace();
             System.exit(-1);

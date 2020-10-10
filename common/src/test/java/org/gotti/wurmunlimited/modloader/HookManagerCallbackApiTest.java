@@ -12,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 @RunWith(HookManagerTestRunner.class)
@@ -43,9 +45,10 @@ public class HookManagerCallbackApiTest {
 
     @BeforeClass
     public static void setupClass() {
+        Path baseDir = Paths.get("");
         Properties properties = new Properties();
         properties.setProperty("forgeDir","test");
-        ForgeConfig.init(properties);
+        ForgeConfig.init(baseDir,properties);
     }
 
     @AfterClass

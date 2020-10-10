@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
@@ -20,9 +21,10 @@ public class ModInstanceBuilderTest {
 
     @BeforeClass
     public static void setupClass() {
+        Path baseDir = Paths.get("");
         Properties properties = new Properties();
         properties.setProperty("forgeDir","test");
-        ForgeConfig.init(properties);
+        ForgeConfig.init(baseDir,properties);
     }
 
     @AfterClass

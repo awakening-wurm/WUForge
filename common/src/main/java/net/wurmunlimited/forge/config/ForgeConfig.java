@@ -3,7 +3,6 @@ package net.wurmunlimited.forge.config;
 import org.gotti.wurmunlimited.modloader.interfaces.Configurable;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -13,9 +12,9 @@ public class ForgeConfig implements Configurable {
 
     protected static ForgeConfig instance = null;
 
-    public static ForgeConfig init(Properties properties) {
+    public static ForgeConfig init(Path baseDir,Properties properties) {
         if(instance==null) {
-            instance = new ForgeConfig();
+            instance = new ForgeConfig(baseDir);
             instance.configure(properties);
         }
         return instance;
@@ -29,24 +28,34 @@ public class ForgeConfig implements Configurable {
         return instance;
     }
 
+    protected final Path baseDir;
     protected String modsProfile = "default";
     protected Path forgeDir = null;
     protected Path modsDir = null;
     protected Path modsProfilesDir = null;
+    protected Path modsDefaultDir = null;
     protected Path modsProfileDir = null;
     protected Path modsLibDir = null;
+    protected Path cacheDir = null;
 
-    protected ForgeConfig() {
+    protected ForgeConfig(Path baseDir) {
+        this.baseDir = baseDir.toAbsolutePath();
     }
 
     @Override
     public void configure(Properties properties) {
         modsProfile = properties.getProperty("modsProfile",modsProfile);
-        forgeDir = Paths.get(properties.getProperty("forgeDir","forge"));
+        forgeDir = baseDir.resolve(properties.getProperty("forgeDir","forge"));
         modsDir = forgeDir.resolve("mods");
         modsProfilesDir = modsDir.resolve("profiles");
+        modsDefaultDir = modsProfilesDir.resolve("default");
         modsProfileDir = modsProfilesDir.resolve(modsProfile);
         modsLibDir = modsDir.resolve("lib");
+        cacheDir = forgeDir.resolve("cache");
+    }
+
+    public Path getBaseDir() {
+        return baseDir;
     }
 
     public String getModsProfile() {
@@ -55,45 +64,34 @@ public class ForgeConfig implements Configurable {
 
     public void setModsProfile(String modsProfile) {
         this.modsProfile = modsProfile;
+        this.modsProfileDir = modsProfilesDir.resolve(this.modsProfile);
     }
 
     public Path getForgeDir() {
         return forgeDir;
     }
 
-    public void setForgeDir(Path forgeDir) {
-        this.forgeDir = forgeDir;
-    }
-
     public Path getModsDir() {
         return modsDir;
-    }
-
-    public void setModsDir(Path modsDir) {
-        this.modsDir = modsDir;
     }
 
     public Path getModsProfilesDir() {
         return modsProfilesDir;
     }
 
-    public void setModsProfilesDir(Path modsProfilesDir) {
-        this.modsProfilesDir = modsProfilesDir;
+    public Path getModsDefaultDir() {
+        return modsDefaultDir;
     }
 
     public Path getModsProfileDir() {
         return modsProfileDir;
     }
 
-    public void setModsProfileDir(Path modsProfileDir) {
-        this.modsProfileDir = modsProfileDir;
-    }
-
     public Path getModsLibDir() {
         return modsLibDir;
     }
 
-    public void setModsLibDir(Path modsLibDir) {
-        this.modsLibDir = modsLibDir;
+    public Path getCacheDir() {
+        return cacheDir;
     }
 }

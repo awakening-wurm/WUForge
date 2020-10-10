@@ -1,5 +1,6 @@
 package net.wurmunlimited.forge.util;
 
+import net.wurmunlimited.forge.VersionHandler.ModInfo;
 import net.wurmunlimited.forge.config.ForgeConfig;
 
 import javax.xml.bind.DatatypeConverter;
@@ -12,22 +13,19 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 
 
 public class ClientChecksum {
 
-    public static String getChecksum(List<HashMap<String,Object>> mods) {
+    public static String getChecksum(Collection<ModInfo> mods) {
         StringBuffer hashes = new StringBuffer();
-        for(HashMap<String,Object> mod : mods) {
-            String name = (String)mod.get("name");
-            String hash = (String)mod.get("hash");
-            if(name.equals("awakening")) {
+        for(ModInfo modInfo : mods) {
+            /*if(name.equals("awakening")) {
                 String hash2 = getAwakeningModHash();
                 if(!hash2.equals(hash)) continue;
-            }
-            hashes.append(hash);
+            }*/
+            hashes.append(modInfo.getHash());
         }
         String checksum;
         try {

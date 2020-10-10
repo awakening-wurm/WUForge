@@ -1,5 +1,6 @@
 package net.wurmunlimited.forge.config;
 
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class ForgeClientConfig extends ForgeConfig {
@@ -11,23 +12,23 @@ public class ForgeClientConfig extends ForgeConfig {
     public static boolean autoSaveToolBelt = true;
     public static boolean customMap = true;
 
-    public static ForgeConfig init(Properties properties) {
-        if(instance==null) {
-            instance = new ForgeClientConfig();
-            instance.configure(properties);
+    public static ForgeClientConfig init(Path baseDir,Properties properties) {
+        if(ForgeConfig.instance==null) {
+            ForgeConfig.instance = new ForgeClientConfig(baseDir);
+            ForgeConfig.instance.configure(properties);
         }
-        return instance;
+        return (ForgeClientConfig)ForgeConfig.instance;
     }
 
     public static ForgeClientConfig getInstance() {
-        if(!(instance instanceof ForgeClientConfig)) {
+        if(!(ForgeConfig.instance instanceof ForgeClientConfig)) {
             throw new RuntimeException("Configurations error, wrong type of configuration class requested.");
         }
-        return (ForgeClientConfig)instance;
+        return (ForgeClientConfig)ForgeConfig.instance;
     }
 
-    private ForgeClientConfig() {
-
+    private ForgeClientConfig(Path baseDir) {
+        super(baseDir);
     }
 
     @Override

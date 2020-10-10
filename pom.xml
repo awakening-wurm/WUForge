@@ -10,6 +10,7 @@
 
   <modules>
     <module>installer</module>
+    <module>forge</module>
     <module>common</module>
     <module>client</module>
     <module>server</module>

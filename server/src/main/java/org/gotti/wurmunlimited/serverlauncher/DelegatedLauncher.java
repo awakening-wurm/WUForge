@@ -8,6 +8,7 @@ import org.gotti.wurmunlimited.modloader.interfaces.ModEntry;
 import org.gotti.wurmunlimited.modloader.interfaces.WurmServerMod;
 import org.gotti.wurmunlimited.modloader.server.ServerHook;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
@@ -18,8 +19,9 @@ public class DelegatedLauncher {
 
     public static void main(String[] args) {
 
+        Path baseDir = Paths.get("");
         Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeServerConfig.init(properties);
+        ForgeServerConfig.init(baseDir,properties);
 
         try {
             ModLoader modLoader = new ModLoader();

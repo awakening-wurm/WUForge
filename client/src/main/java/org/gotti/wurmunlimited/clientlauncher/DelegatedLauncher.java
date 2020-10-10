@@ -7,6 +7,8 @@ import net.wurmunlimited.forge.util.FileUtil;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,8 +19,9 @@ public class DelegatedLauncher {
 
     public static void main(String[] args) {
 
+        Path baseDir = Paths.get("");
         Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeClientConfig.init(properties);
+        ForgeClientConfig.init(baseDir,properties);
 
         try {
             new ModLoader().loadModsFromModDir();

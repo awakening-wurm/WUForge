@@ -3,6 +3,8 @@ package net.wurmunlimited.forge;
 import net.wurmunlimited.forge.config.ForgeServerConfig;
 import net.wurmunlimited.forge.util.FileUtil;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -30,7 +32,8 @@ public class WUForge {
     private void init(String[] args) {
         System.out.println("Running: WUForge");
 
+        Path baseDir = Paths.get("");
         Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeServerConfig.init(properties);
+        ForgeServerConfig.init(baseDir,properties);
     }
 }

@@ -1,16 +1,20 @@
 package net.wurmunlimited.forge;
 
 import com.wurmonline.client.WurmClientBase;
+import com.wurmonline.client.startup.ServerBrowserFX;
+import com.wurmonline.client.steam.SteamHandler;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import net.wurmunlimited.forge.config.ForgeClientConfig;
 import net.wurmunlimited.forge.config.ForgeConfig;
+import net.wurmunlimited.forge.launcherfx.ModsSettingsFX;
 import net.wurmunlimited.forge.packs.ServerPacks;
 import net.wurmunlimited.forge.util.FileUtil;
 import org.gotti.wurmunlimited.modloader.ModLoader;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -45,11 +49,25 @@ public class WUForge {
     }
 
     public static void changeModsConfig(ComboBox<String> modsConfigBox) {
-        logger.info("changeModsConfig");
+        String value = modsConfigBox.getValue();
+        logger.info("changeModsConfig(value="+value+")");
     }
 
     public static void launchModsSettings(ComboBox<String> modsConfigBox) {
-        logger.info("launchModsSettings");
+        String value = modsConfigBox.getValue();
+        ServerBrowserFX serverBrowserFX = null;
+        try {
+            Field serverBrowserFXField = SteamHandler.class.getDeclaredField("serverBrowserFX");
+            serverBrowserFXField.setAccessible(true);
+            serverBrowserFX = (ServerBrowserFX)serverBrowserFXField.get(WurmClientBase.steamHandler);
+        } catch(NoSuchFieldException|IllegalArgumentException|IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        logger.info("launchModsSettings(value="+value+",serverBrowserFX="+serverBrowserFX+")");
+        ModsSettingsFX modsSettingsFX = ModsSettingsFX.getInstance(true);
+        modsSettingsFX.setLauncherWindow(serverBrowserFX);
+        modsSettingsFX.restart();
+        modsSettingsFX.show();
     }
 
     public static String getCreditsURL() {
@@ -76,7 +94,6 @@ public class WUForge {
         Properties properties = FileUtil.loadProperties("forge.properties");
         ForgeClientConfig.init(Paths.get(""),properties);
         initSteamAppId();
-        ServerConnection.getInstance().getAvailableMods(config.getModsLibDir());
         ServerConnection.getInstance().init();
         CodeInjections.preInit();
         ServerPacks.getInstance().init();

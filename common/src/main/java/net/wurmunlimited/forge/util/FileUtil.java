@@ -1,8 +1,6 @@
 package net.wurmunlimited.forge.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -14,6 +12,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -232,5 +232,33 @@ public class FileUtil {
             }
         }
         return properties;
+    }
+
+    public static void unzip(Path zipFile,Path destDir) throws IOException {
+        if(!Files.exists(destDir) || !Files.isDirectory(destDir)) {
+            throw new IOException("Destination directory doesn't exist or isn't a directory.");
+        }
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile.toFile()));
+        ZipEntry entry = zipIn.getNextEntry();
+        // iterates over entries in the zip file
+        while(entry!=null) {
+            Path filePath = destDir.resolve(entry.getName());
+            if(entry.isDirectory()) {
+                // if the entry is a directory, make the directory
+                FileUtil.createDirectory(filePath);
+            } else {
+                // if the entry is a file, extracts it
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()));
+                byte[] bytesIn = new byte[1024];
+                int read = 0;
+                while((read = zipIn.read(bytesIn))!=-1) {
+                    bos.write(bytesIn,0,read);
+                }
+                bos.close();
+            }
+            zipIn.closeEntry();
+            entry = zipIn.getNextEntry();
+        }
+        zipIn.close();
     }
 }

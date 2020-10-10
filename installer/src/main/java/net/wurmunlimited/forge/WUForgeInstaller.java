@@ -14,10 +14,16 @@ import java.util.List;
 import java.util.Map;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static net.wurmunlimited.forge.interfaces.ForgeConstants.BASE_URL;
+import static net.wurmunlimited.forge.interfaces.ForgeConstants.FORGE_BASE_URL;
 import static net.wurmunlimited.forge.interfaces.ForgeConstants.VERSION;
 
 public class WUForgeInstaller {
+
+    private static class InstallationException extends Exception {
+        InstallationException(String message) {
+            super(message);
+        }
+    }
 
     public static void main(final String[] args) {
         WUForgeInstaller installer = new WUForgeInstaller();
@@ -123,10 +129,11 @@ public class WUForgeInstaller {
         Path profilesDir;
         Path profilesDefaultDir;
         Path modsLibDir;
+        Path cacheDir;
         Path forgeProperties;
         Path forgeClient;
         Path wurmClient;
-        Path javassist;
+        Path forgeJar;
         Path loggingProperties;
 
         void init() {
@@ -135,23 +142,23 @@ public class WUForgeInstaller {
             profilesDir = modsDir.resolve("profiles");
             profilesDefaultDir = profilesDir.resolve("default");
             modsLibDir = modsDir.resolve("lib");
+            cacheDir = forgeDir.resolve("cache");
             forgeProperties = clientDir.resolve("forge.properties");
             forgeClient = clientDir.resolve("client.jar");
             wurmClient = clientDir.resolve("forge.client.jar");
-            javassist = clientDir.resolve("javassist.jar");
+            forgeJar = forgeDir.resolve("forge.jar");
             loggingProperties = forgeDir.resolve("logging.properties");
         }
 
         boolean isInstalled() {
-            return Files.exists(forgeDir) && Files.isDirectory(forgeDir) &&
-                   Files.exists(forgeProperties) && Files.isRegularFile(forgeProperties) &&
+            return Files.exists(forgeProperties) && Files.isRegularFile(forgeProperties) &&
+                   Files.exists(forgeJar) && Files.isRegularFile(forgeJar) &&
                    Files.exists(wurmClient) && Files.isRegularFile(wurmClient);
         }
 
         boolean uninstall() {
             Path[] files = {
                 forgeClient,
-                javassist,
                 forgeProperties,
                 loggingProperties
             };
@@ -170,6 +177,7 @@ public class WUForgeInstaller {
                 Path[] dirs = {
                     forgeDir,
                     modsDir,
+                    cacheDir,
                     profilesDir,
                     profilesDefaultDir,
                     modsLibDir
@@ -179,11 +187,14 @@ public class WUForgeInstaller {
             return false;
         }
 
-        boolean installForge(final ProgressMonitor progressMonitor) {
+        void installForge(final ProgressMonitor progressMonitor) throws InstallationException {
+            boolean ok = true;
+            Path forgeClientTemp = cacheDir.resolve("client.jar");
+            Path forgeJarTemp = cacheDir.resolve("forge.jar");
             final Point range = new Point(0,100);
             if(progressMonitor!=null) {
                 new Thread(() -> {
-                    while(range.x<100) {
+                    while(range.x<100 && !progressMonitor.isCanceled()) {
                         if(range.x<range.y) {
                             progressMonitor.setProgress(++range.x);
                         }
@@ -193,31 +204,55 @@ public class WUForgeInstaller {
                     }
                 }).start();
             }
-            range.y = 20;
-            try {
-                log("Moving client.jar to forge.client.jar...");
-                Files.move(forgeClient,wurmClient,REPLACE_EXISTING);
-            } catch(IOException e) {
-                return false;
+            pause(200);
+            range.y = 10;
+            if((progressMonitor==null || !progressMonitor.isCanceled()) && ok) {
+                log("Downloading client.jar ...");
+                ok = HttpClient.download(FORGE_BASE_URL+"download/client.jar",forgeClientTemp) && ok;
             }
             range.x = range.y;
-            range.y = 50;
-            boolean ret = true;
-            log("Downloading and installing client.jar ...");
-            ret = HttpClient.download(BASE_URL+"download/client.jar",forgeClient) && ret;
-            range.x = range.y;
-            range.y = 80;
-            log("Downloading and installing javassist.jar ...");
-            ret = HttpClient.download(BASE_URL+"download/javassist.jar",javassist) && ret;
+            range.y = 60;
+            if((progressMonitor==null || !progressMonitor.isCanceled()) && ok) {
+                log("Downloading forge.jar ...");
+                ok = HttpClient.download(FORGE_BASE_URL+"download/forge.jar",forgeJarTemp) && ok;
+            }
             range.x = range.y;
             range.y = 100;
-            log("Installing configurations files...");
-            pause(200);
-            ret = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null && ret;
-            ret = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null && ret;
+            if((progressMonitor==null || !progressMonitor.isCanceled()) && ok) {
+                pause(200);
+            }
             range.x = 100;
-            pause(200);
-            return ret;
+            if((progressMonitor==null || !progressMonitor.isCanceled()) && ok) {
+                try {
+                    log("Moving client.jar to forge.client.jar...");
+                    Files.move(forgeClient,wurmClient,REPLACE_EXISTING);
+                    log("Installing downloaded files...");
+                    Files.move(forgeClientTemp,forgeClient,REPLACE_EXISTING);
+                    Files.move(forgeJarTemp,forgeJar,REPLACE_EXISTING);
+                } catch(IOException e) {
+                    log(e.toString());
+                    for(StackTraceElement ste : e.getStackTrace()) {
+                        log("\tat "+ste);
+                    }
+                    ok = false;
+                }
+                if(ok) {
+                    log("Installing configurations files...");
+                    ok = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null && ok;
+                }
+                if(ok) ok = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null && ok;
+                if(ok) return;
+            }
+            if(!ok) {
+                throw new InstallationException("Something went wrong with the installation.\n\n"+
+                                                "Please try again later, and otherwise contact\n"+
+                                                "support for assistance.\n\n"+
+                                                "Copy log output and keep ready to help support\n"+
+                                                "with your case.");
+            }
+            String cancelled = "Installation was cancelled.";
+            log(cancelled);
+            throw new InstallationException(cancelled);
         }
 
         void installAgoMods(Path agoModsDir) {
@@ -350,13 +385,13 @@ public class WUForgeInstaller {
 
         log("Installing WU Forge files...");
         ProgressMonitor progressMonitor = new ProgressMonitor(window.frame,"Installing...","",0,100);
-        boolean ret = forgeFiles.installForge(progressMonitor);
-        progressMonitor.close();
-        if(!ret) {
-            errorMessage("Something went wrong with the installation.\n\n"+
-                         "Please try again later, and otherwise contact\n"+
-                         "support for assistance.");
+        try {
+            forgeFiles.installForge(progressMonitor);
+        } catch(InstallationException e) {
+            errorMessage(e.getMessage());
             return;
+        } finally {
+            progressMonitor.close();
         }
         log("Finished.");
         messageBox("Wurm Unlimited Forge has been installed.\n\n"+
@@ -388,14 +423,14 @@ public class WUForgeInstaller {
                 steam = Paths.get(homeDir+"/.local/share/Steam").resolve(wuDir);
             }
         }
-        /*if(steam!=null && Files.exists(steam)) {
+        if(steam!=null && Files.exists(steam)) {
             log("Found Steam directory at: "+steam.toAbsolutePath().toString());
             directory = steam.resolve(wuDir);
             if(Files.exists(directory)) return directory;
             log("Wurm wasn't installed in the default directory, looking into Steam configurations...");
             directory = findWurmLauncherDirectoryFromVDF(steam,wuDir);
             if(Files.exists(directory)) return directory;
-        }*/
+        }
         log("No Wurm installation was found in the default locations or Steam configurations, "+
             "choose the installation directory instead.");
         log("If you didn't install Wurm, and don't know where it is located, please ask the person "+

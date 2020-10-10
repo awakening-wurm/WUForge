@@ -97,8 +97,8 @@ public class WUForgeInstallerTest {
         try {
             Files.move(installer.forgeFiles.forgeClient,installer.forgeFiles.wurmClient,REPLACE_EXISTING);
             Files.copy(forgeFilesDir.resolve("client.jar"),installer.forgeFiles.forgeClient,REPLACE_EXISTING);
-            Files.copy(forgeFilesDir.resolve("javassist.jar"),installer.forgeFiles.javassist,REPLACE_EXISTING);
             Files.copy(forgeFilesDir.resolve("forge.properties"),installer.forgeFiles.forgeProperties,REPLACE_EXISTING);
+            Files.copy(forgeFilesDir.resolve("forge.jar"),installer.forgeFiles.forgeJar,REPLACE_EXISTING);
             Files.copy(forgeFilesDir.resolve("logging.properties"),installer.forgeFiles.loggingProperties,REPLACE_EXISTING);
         } catch(IOException e) {}
     }

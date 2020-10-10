@@ -9,7 +9,7 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import static net.wurmunlimited.forge.interfaces.ForgeConstants.BASE_URL;
+import static net.wurmunlimited.forge.interfaces.ForgeConstants.FORGE_BASE_URL;
 
 public class InstallerWindow extends WindowAdapter implements WindowListener {
 
@@ -25,7 +25,7 @@ public class InstallerWindow extends WindowAdapter implements WindowListener {
         label.setText("<html><div style=\"text-align:center;margin-bottom:10px;\">"+
                       "<h1>Wurm Unlimited Forge</h1>"+
                       "For more information visit:<br>"+
-                      "<a href=\""+BASE_URL+"\">"+BASE_URL+"</a><br>&nbsp;<br></div>"+
+                      "<a href=\""+FORGE_BASE_URL+"\">"+FORGE_BASE_URL+"</a><br>&nbsp;<br></div>"+
                       "<div style=\"margin-bottom:10px;\">Based on <i>Ago's Client Mod Launcher</i>,<br>"+
                       "by Alexander Gottwald, a.k.a. Ago</div>"+
                       "<div style=\"margin-bottom:10px;\"><i>WU Forge</i> is developed and maintained<br>"+

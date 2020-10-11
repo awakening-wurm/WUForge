@@ -66,7 +66,7 @@ class ModInstanceBuilder<T> {
         for(String entry : entries) {
             try {
                 Path resolved = libDir.resolve(entry);
-                if(Files.exists(resolved) && !resolved.isAbsolute() && !libDir.relativize(resolved).startsWith("../")) {
+                if(Files.exists(resolved) && !libDir.relativize(resolved).startsWith("../")) {
                     pathEntries.add(resolved);
                     continue;
                 }

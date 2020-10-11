@@ -44,12 +44,12 @@ public class ModInstanceBuilderTest {
 
     private void checkResources(boolean sharedClassLoader) throws IOException {
         ForgeConfig config = ForgeConfig.getInstance();
+        ModInstanceBuilder<Object> instanceBuilder = new ModInstanceBuilder<>(Object.class);
+        final String modName = "test";
         Properties properties = new Properties();
         properties.setProperty("sharedClassLoader",Boolean.toString(sharedClassLoader));
         properties.setProperty("classname","DummyMod");
         properties.setProperty("classpath","test.jar,files");
-        ModInstanceBuilder<Object> instanceBuilder = new ModInstanceBuilder<>(Object.class);
-        final String modName = "test";
         ModInfo modEntry = new ModInfo(properties,modName);
         Object mod = instanceBuilder.createModInstance(modEntry);
         final Path modPath = config.getModsLibDir();
@@ -64,12 +64,12 @@ public class ModInstanceBuilderTest {
     @Test
     public void testWildcard() throws IOException {
         ForgeConfig config = ForgeConfig.getInstance();
+        ModInstanceBuilder<Object> instanceBuilder = new ModInstanceBuilder<>(Object.class);
+        final String modName = "test";
         Properties properties = new Properties();
         properties.setProperty("sharedClassLoader",Boolean.toString(false));
         properties.setProperty("classname","DummyMod");
         properties.setProperty("classpath","*.jar,files");
-        ModInstanceBuilder<Object> instanceBuilder = new ModInstanceBuilder<>(Object.class);
-        final String modName = "test";
         ModInfo modEntry = new ModInfo(properties,modName);
         Object mod = instanceBuilder.createModInstance(modEntry);
         final Path modPath = config.getModsLibDir();

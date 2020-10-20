@@ -269,6 +269,7 @@ public class WUForgeInstaller {
                         FileUtil.createDirectory(dir);
                     } else {
                         String fileName = rel.getFileName().toString();
+                        if(fileName.startsWith("awakening.")) continue;
                         Path forgeFile;
                         if(n==1) forgeFile = profilesDefaultDir.resolve(rel);
                         else {

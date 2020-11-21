@@ -20,9 +20,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class WUForge {
     private static final Logger logger = Logger.getLogger(WUForge.class.getName());
@@ -36,23 +38,34 @@ public class WUForge {
         WUForge.getInstance().init(args);
     }
 
+    @SuppressWarnings("unused")
     public static URL getResource(String s) {
         if(s.startsWith("/")) s = s.substring(1);
         return WUForge.class.getResource("launcher/"+s);
     }
 
+    @SuppressWarnings("unused")
     public static void ServerBrowserFX_initialize(ComboBox<String> modsConfigBox) {
         logger.info("ServerBrowserFX_initialize");
-        String[] modsProfiles = { "default","test","test2" };
-        modsConfigBox.setItems(FXCollections.observableArrayList(modsProfiles));
-        modsConfigBox.getSelectionModel().select(modsProfiles[0]);
+        ForgeClientConfig config = ForgeClientConfig.getInstance();
+        List<Path> profileDirs = FileUtil.findDirectories(config.getModsProfilesDir(),false,false);
+        List<String> profiles = profileDirs.stream().map(p -> p.getFileName().toString()).collect(Collectors.toList());
+        String profile = config.getModsProfile();
+        if(!profiles.contains(profile)) {
+            profile = profiles.get(0);
+            config.setModsProfile(profile);
+        }
+        modsConfigBox.setItems(FXCollections.observableArrayList(profiles));
+        modsConfigBox.getSelectionModel().select(profile);
     }
 
+    @SuppressWarnings("unused")
     public static void changeModsConfig(ComboBox<String> modsConfigBox) {
         String value = modsConfigBox.getValue();
         logger.info("changeModsConfig(value="+value+")");
     }
 
+    @SuppressWarnings("unused")
     public static void launchModsSettings(ComboBox<String> modsConfigBox) {
         String value = modsConfigBox.getValue();
         ServerBrowserFX serverBrowserFX = null;
@@ -91,8 +104,9 @@ public class WUForge {
     private void init(String[] args) {
         System.out.println("Running: WUForge");
 
-        Properties properties = FileUtil.loadProperties("forge.properties");
-        ForgeClientConfig.init(Paths.get(""),properties);
+        Path baseDir = Paths.get("").toAbsolutePath();
+        Properties properties = FileUtil.loadProperties(baseDir.resolve("forge.properties"));
+        ForgeClientConfig.init(baseDir,properties);
         initSteamAppId();
         ServerConnection.getInstance().init();
         CodeInjections.preInit();

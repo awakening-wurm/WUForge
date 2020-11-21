@@ -1,7 +1,7 @@
 package net.wurmunlimited.forge.util;
 
-import net.wurmunlimited.forge.VersionHandler.ModInfo;
 import net.wurmunlimited.forge.config.ForgeConfig;
+import net.wurmunlimited.forge.mods.InstalledMod;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
@@ -16,16 +16,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 
-public class ClientChecksum {
+public class HashUtil {
 
-    public static String getChecksum(Collection<ModInfo> mods) {
+    public static String getChecksum(Collection<InstalledMod> mods) {
         StringBuffer hashes = new StringBuffer();
-        for(ModInfo modInfo : mods) {
+        for(InstalledMod installedMod : mods) {
             /*if(name.equals("awakening")) {
                 String hash2 = getAwakeningModHash();
                 if(!hash2.equals(hash)) continue;
             }*/
-            hashes.append(modInfo.getHash());
+            hashes.append(installedMod.getHash());
         }
         String checksum;
         try {

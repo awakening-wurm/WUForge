@@ -32,8 +32,8 @@ public class WUForge {
     private void init(String[] args) {
         System.out.println("Running: WUForge");
 
-        Path baseDir = Paths.get("");
-        Properties properties = FileUtil.loadProperties("forge.properties");
+        Path baseDir = Paths.get("").toAbsolutePath();
+        Properties properties = FileUtil.loadProperties(baseDir.resolve("forge.properties"));
         ForgeServerConfig.init(baseDir,properties);
     }
 }

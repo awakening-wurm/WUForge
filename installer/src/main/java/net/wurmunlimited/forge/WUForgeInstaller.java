@@ -1,5 +1,6 @@
 package net.wurmunlimited.forge;
 
+import net.wurmunlimited.forge.interfaces.ForgeConstants;
 import net.wurmunlimited.forge.util.FileUtil;
 import net.wurmunlimited.forge.util.HttpClient;
 
@@ -140,7 +141,7 @@ public class WUForgeInstaller {
             forgeDir = clientDir.resolve("forge");
             modsDir = forgeDir.resolve("mods");
             profilesDir = modsDir.resolve("profiles");
-            profilesDefaultDir = profilesDir.resolve("default");
+            profilesDefaultDir = profilesDir.resolve(ForgeConstants.DEFAULT_PROFILE);
             modsLibDir = modsDir.resolve("lib");
             cacheDir = forgeDir.resolve("cache");
             forgeProperties = clientDir.resolve("forge.properties");
@@ -208,13 +209,13 @@ public class WUForgeInstaller {
             range.y = 10;
             if((progressMonitor==null || !progressMonitor.isCanceled()) && ok) {
                 log("Downloading client.jar ...");
-                ok = HttpClient.download(FORGE_BASE_URL+"download/client.jar",forgeClientTemp) && ok;
+                ok = HttpClient.download(FORGE_BASE_URL+"download/client.jar",forgeClientTemp);
             }
             range.x = range.y;
             range.y = 60;
             if((progressMonitor==null || !progressMonitor.isCanceled()) && ok) {
                 log("Downloading forge.jar ...");
-                ok = HttpClient.download(FORGE_BASE_URL+"download/forge.jar",forgeJarTemp) && ok;
+                ok = HttpClient.download(FORGE_BASE_URL+"download/forge.jar",forgeJarTemp);
             }
             range.x = range.y;
             range.y = 100;
@@ -238,9 +239,9 @@ public class WUForgeInstaller {
                 }
                 if(ok) {
                     log("Installing configurations files...");
-                    ok = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null && ok;
+                    ok = FileUtil.extractFile(WUForgeInstaller.class,forgeProperties,"/forge.properties",false)!=null;
                 }
-                if(ok) ok = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null && ok;
+                if(ok) ok = FileUtil.extractFile(WUForgeInstaller.class,loggingProperties,"/logging.properties",false)!=null;
                 if(ok) return;
             }
             if(!ok) {

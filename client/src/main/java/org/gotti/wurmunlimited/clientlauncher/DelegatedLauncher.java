@@ -19,8 +19,8 @@ public class DelegatedLauncher {
 
     public static void main(String[] args) {
 
-        Path baseDir = Paths.get("");
-        Properties properties = FileUtil.loadProperties("forge.properties");
+        Path baseDir = Paths.get("").toAbsolutePath();
+        Properties properties = FileUtil.loadProperties(baseDir.resolve("forge.properties"));
         ForgeClientConfig.init(baseDir,properties);
 
         try {

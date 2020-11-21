@@ -1,11 +1,13 @@
 package net.wurmunlimited.forge.util;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,19 +109,70 @@ public class FileUtil {
     }
 
     public static List<Path> findFiles(Path dir) {
+        return findFiles(dir,true,true);
+    }
+
+    public static List<Path> findFiles(Path dir,boolean recurse,boolean includeDirectories) {
         if(!Files.exists(dir) || !Files.isDirectory(dir)) return null;
         List<Path> files = new ArrayList<>();
         try {
-            LinkedList<Path> dirs = new LinkedList<>();
-            dirs.push(dir);
-            files.add(dir);
-            while(!dirs.isEmpty()) {
-                Path d = dirs.pollFirst();
-                try(DirectoryStream<Path> ds = Files.newDirectoryStream(d)) {
+            if(includeDirectories) files.add(dir);
+            if(recurse) {
+                LinkedList<Path> dirs = new LinkedList<>();
+                dirs.push(dir);
+                while(!dirs.isEmpty()) {
+                    Path d = dirs.pollFirst();
+                    try(DirectoryStream<Path> ds = Files.newDirectoryStream(d)) {
+                        for(Path f : ds) {
+                            if(Files.isRegularFile(f)) files.add(f);
+                            else if(Files.isDirectory(f)) {
+                                dirs.push(f);
+                                if(includeDirectories) files.add(f);
+                            }
+                        }
+                    }
+                }
+            } else {
+                try(DirectoryStream<Path> ds = Files.newDirectoryStream(dir)) {
                     for(Path f : ds) {
                         if(Files.isRegularFile(f)) files.add(f);
                         else if(Files.isDirectory(f)) {
-                            dirs.push(f);
+                            if(includeDirectories) files.add(f);
+                        }
+                    }
+                }
+            }
+        } catch(IOException e) {}
+        return files;
+    }
+
+    public static List<Path> findDirectories(Path dir) {
+        return findDirectories(dir,true,true);
+    }
+
+    public static List<Path> findDirectories(Path dir,boolean recurse,boolean includeRoot) {
+        if(!Files.exists(dir) || !Files.isDirectory(dir)) return null;
+        List<Path> files = new ArrayList<>();
+        try {
+            if(includeRoot) files.add(dir);
+            if(recurse) {
+                LinkedList<Path> dirs = new LinkedList<>();
+                dirs.push(dir);
+                while(!dirs.isEmpty()) {
+                    Path d = dirs.pollFirst();
+                    try(DirectoryStream<Path> ds = Files.newDirectoryStream(d)) {
+                        for(Path f : ds) {
+                            if(Files.isDirectory(f)) {
+                                dirs.push(f);
+                                files.add(f);
+                            }
+                        }
+                    }
+                }
+            } else {
+                try(DirectoryStream<Path> ds = Files.newDirectoryStream(dir)) {
+                    for(Path f : ds) {
+                        if(Files.isDirectory(f)) {
                             files.add(f);
                         }
                     }
@@ -208,17 +261,16 @@ public class FileUtil {
         return files;
     }
 
-    public static Properties loadProperties(String file) {
+    public static Properties loadProperties(Path file) {
         Properties properties = new Properties();
-        Path path = Paths.get(file);
-        if(!Files.exists(path)) {
+        if(!Files.exists(file)) {
             logger.warning("The config file seems to be missing.");
             return properties;
         }
         InputStream stream = null;
         try {
             logger.info("Opening the config file.");
-            stream = Files.newInputStream(path);
+            stream = Files.newInputStream(file);
             logger.info("Reading from the config file.");
             properties.load(stream);
             logger.info("Configuration loaded.");
@@ -260,5 +312,30 @@ public class FileUtil {
             entry = zipIn.getNextEntry();
         }
         zipIn.close();
+    }
+
+    public static String getSha1Sum(Path path) {
+        if(Files.exists(path)) {
+            try(final InputStream is = Files.newInputStream(path)) {
+                return getSha1Sum(is);
+            } catch(IOException e) {}
+        }
+        return null;
+    }
+
+    static String getSha1Sum(InputStream is) {
+        try {
+            final MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+            messageDigest.reset();
+            int n = 0;
+            final byte[] buffer = new byte[8192];
+            while(n!=-1) {
+                n = is.read(buffer);
+                if(n>0) messageDigest.update(buffer,0,n);
+            }
+            final byte[] digest = messageDigest.digest();
+            return DatatypeConverter.printHexBinary(digest);
+        } catch(IOException|NoSuchAlgorithmException e) {}
+        return null;
     }
 }

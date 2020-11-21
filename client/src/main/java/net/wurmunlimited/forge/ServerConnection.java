@@ -5,17 +5,19 @@ import com.wurmonline.client.game.World;
 import com.wurmonline.client.renderer.gui.WorldMap;
 import com.wurmonline.client.renderer.gui.maps.ClusterMap;
 import com.wurmonline.communication.SocketConnection;
-import net.wurmunlimited.forge.VersionHandler.ModInfo;
-import net.wurmunlimited.forge.VersionHandler.ReleaseVersion;
 import net.wurmunlimited.forge.config.ForgeClientConfig;
 import net.wurmunlimited.forge.interfaces.ConnectionHandler;
-import net.wurmunlimited.forge.util.ClientChecksum;
+import net.wurmunlimited.forge.mods.InstalledMod;
+import net.wurmunlimited.forge.mods.ReleaseVersion;
+import net.wurmunlimited.forge.mods.VersionHandler;
+import net.wurmunlimited.forge.util.HashUtil;
 import org.gotti.wurmunlimited.modcomm.PacketWriter;
 import org.gotti.wurmunlimited.modloader.ReflectionUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 
 public class ServerConnection implements ConnectionHandler {
@@ -102,15 +106,36 @@ public class ServerConnection implements ConnectionHandler {
 
     public void init() {
         ForgeClientConfig config = ForgeClientConfig.getInstance();
-        VersionHandler.getInstance().getInstalledMods();
-        VersionHandler.getInstance().loadNewVersions();
-        Map<ModInfo,ReleaseVersion> updates = VersionHandler.getInstance().getUpdates();
-        if(!updates.isEmpty() && config.autoUpdate) {
-            String jarName = "forge.jar";
-            Path jar = config.getForgeDir().resolve(jarName).toAbsolutePath();
-            logger.info("Starting the auto installer ("+jar.toString()+")...");
+        if(Files.exists(config.getUpdateForgeJar())) {
             try {
-                String exec = "java -jar "+jarName;
+                Files.move(config.getUpdateForgeJar(),config.getForgeJar(),REPLACE_EXISTING);
+            } catch(IOException e) {
+                throw new RuntimeException("Could not install forge.jar");
+            }
+        }
+        VersionHandler vh = VersionHandler.getInstance();
+        vh.load(true);
+        ReleaseVersion forgeUpdate = vh.findForgeUpdate();
+        if(forgeUpdate!=null) {
+            if(Files.exists(config.getClientJar())) {
+                String md5 = HashUtil.getMD5(config.getClientJar());
+                if(forgeUpdate.md5==null || forgeUpdate.md5.equalsIgnoreCase(md5))
+                    forgeUpdate = null;
+            }
+        }
+        Map<InstalledMod,ReleaseVersion> updates = vh.findModUpdates();
+        if((forgeUpdate!=null || !updates.isEmpty()) && config.autoUpdate) {
+            Path forgeJar = config.getForgeJar().toAbsolutePath();
+            logger.info("Starting the auto installer ("+forgeJar.toString()+")...");
+            try {
+                String java = config.getJava().toString();
+                if(!java.startsWith("java")) {
+                    java = config.getForgeDir().relativize(config.getJava()).toString();
+                    if(java.contains(" ")) java = "\""+java+"\"";
+                }
+                String jarName = forgeJar.getFileName().toString();
+                String exec = java+" -cp "+jarName+" net.wurmunlimited.forge.ClientUpdater";
+                logger.info("Running client updater: "+exec);
                 Process p = Runtime.getRuntime().exec(exec,null,config.getForgeDir().toFile());
             } catch(IOException e) {
                 logger.log(Level.SEVERE,"Could not start auto installer process: "+e.getMessage(),e);
@@ -135,19 +160,19 @@ public class ServerConnection implements ConnectionHandler {
     private void sendInstalledMods(final ByteBuffer msg) {
         logger.info("Sending client mods:");
         try {
-            Map<String,ModInfo> installedMods = VersionHandler.getInstance().getInstalledMods();
+            Map<String,InstalledMod> installedMods = VersionHandler.getInstance().getInstalledMods();
             try(final PacketWriter writer = new PacketWriter()) {
                 writer.writeByte(-101);
                 writer.writeByte(2);
                 writer.writeByte(1);
                 writer.writeInt(installedMods.size());
-                Collection<ModInfo> mods = installedMods.values();
-                for(ModInfo modInfo : mods) {
-                    logger.info("Client mod: "+modInfo.getName()+", hash: "+modInfo.getHash());
-                    writer.writeUTF(modInfo.getName());
-                    writer.writeUTF(modInfo.getHash());
+                Collection<InstalledMod> mods = installedMods.values();
+                for(InstalledMod installedMod : mods) {
+                    logger.info("Client mod: "+installedMod.getName()+", hash: "+installedMod.getHash());
+                    writer.writeUTF(installedMod.getName());
+                    writer.writeUTF(installedMod.getHash());
                 }
-                writer.writeUTF(ClientChecksum.getChecksum(mods));
+                writer.writeUTF(HashUtil.getChecksum(mods));
                 sendPacket(writer);
             }
         } catch(IOException e) {

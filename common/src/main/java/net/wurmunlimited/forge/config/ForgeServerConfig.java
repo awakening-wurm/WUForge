@@ -3,6 +3,8 @@ package net.wurmunlimited.forge.config;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static net.wurmunlimited.forge.interfaces.ForgeConstants.FORGE_BASE_URL;
+
 public class ForgeServerConfig extends ForgeConfig {
 
     public static ForgeServerConfig init(Path baseDir,Properties properties) {
@@ -27,5 +29,15 @@ public class ForgeServerConfig extends ForgeConfig {
     @Override
     public void configure(Properties properties) {
         super.configure(properties);
+    }
+
+    @Override
+    public String getModsUrl() {
+        return FORGE_BASE_URL+"mods/server";
+    }
+
+    @Override
+    public String getRepositoryUrl() {
+        return FORGE_BASE_URL+"repository/server";
     }
 }
